@@ -1,0 +1,415 @@
+#! /usr/bin/env bash
+#
+#   Copyright (c) 2015-2017 Nat! - Mulle kybernetiK
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions are met:
+#
+#   Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+#   Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+#   Neither the name of Mulle kybernetiK nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#   POSSIBILITY OF SUCH DAMAGE.
+#
+[ "${TRACE}" = 'YES' -o "${MULLE_DOMAIN_TRACE}" = 'YES' ] && set -x && : "$0" "$@"
+
+MULLE_EXECUTABLE_VERSION="0.0.1"
+
+#
+# This is the main user interface to mulle-domain
+# sorta like git
+#
+
+trap_fail()
+{
+   exit 1
+}
+
+
+
+print_commands()
+{
+   local  show_all="${1:-NO}"
+
+   SHOWN_COMMANDS="\
+   compose-url       : create an URL
+   parse-url         : parse an URL
+   resolve           : get tag that matches a semver qualifier best
+   tags              : list all tags of a repository
+   tags-with-commits : list tags with commit identifiers in alternate lines
+   list              : list known repository domains for which a plugin exists"
+
+   HIDDEN_COMMANDS="\
+   nameguess         : guess final filename from url, (hint: specify -s <scm>)
+   libexec-dir       : print path to mulle-domain libexec
+   typeguess         : guess plugin name suitable for url
+   commit-for-tag    : given a tag get the commit identifier
+   tags-for-commit   : list all tags that reference the given commit identifier
+   tag-aliases       : list all tags that reference the same tag
+   uname             : mulle-domains simplified uname(1)
+   version           : print mulle-domain version"
+
+
+   printf "%s\n" "${SHOWN_COMMANDS}"
+
+   if [ "${show_all}" != 'NO' ]
+   then
+      printf "%s\n" "${HIDDEN_COMMANDS}"
+   fi
+}
+
+
+print_flags()
+{
+   cat <<EOF
+   --domain-token <token> : sets MULLE_DOMAIN_<domain>_TOKEN (see Environment)
+   --per-page <value>     : sets MULLE_DOMAIN_<domain>_PER_PAGE
+   --max-pages <value>    : sets MULLE_DOMAIN_<domain>_MAX_PAGES
+   --user <name>          : username for the given domain
+   --repo <name>          : repository name
+EOF
+
+   if [ "${verbose}" = 'YES' ]
+   then
+      cat <<EOF
+   -h                     : this help
+EOF
+      options_technical_flags_usage "                  : "
+   fi
+}
+
+
+_usage()
+{
+   local verbose="${1:-NO}"
+
+   cat <<EOF
+Usage:
+   ${MULLE_USAGE_NAME} [flags] <command>
+
+   Access tag information from a repository hosted on known domains
+   (e.g. "github"). Also parse and compose repository URLs.
+
+Example:
+      mulle-domain parse-url  \\
+         https://github.com/openssl/openssl/archive/OpenSSL_1_0_2u.tar.gz
+
+EOF
+
+   cat <<EOF
+Commands:
+EOF
+
+   print_commands "${verbose}" | LC_ALL=C sort
+
+   if [ "${verbose}" = 'NO' ]
+   then
+      cat <<EOF
+      (Use mulle-domain -v help for more commands)
+EOF
+   fi
+
+   cat <<EOF
+      (Use mulle-domain <command> -h for command specific help.)
+EOF
+
+   echo
+   echo "Flags:"
+   print_flags "${verbose}" | LC_ALL=C sort
+
+   cat <<EOF
+
+Environment:
+   MULLE_DOMAIN_<domain>_TOKEN     : access token to use, domain in uppercase
+   MULLE_DOMAIN_<domain>_MAX_PAGES : max pages to domain (20)
+   MULLE_DOMAIN_<domain>_PER_PAGE  : number of entries per page up to 100 (100)
+
+EOF
+}
+
+
+usage()
+{
+   _usage "$@" >&2
+   exit 1
+}
+
+
+main()
+{
+   local MULLE_FLAG_MAGNUM_FORCE='NO'
+
+   # technical flags
+   local MULLE_TRACE
+   local MULLE_FLAG_EXEKUTOR_DRY_RUN='NO'
+   local MULLE_FLAG_LOG_LOCAL='NO'
+   local MULLE_FLAG_LOG_DEBUG='NO'
+   local MULLE_FLAG_LOG_EXEKUTOR='NO'
+   local MULLE_FLAG_LOG_FLUFF='NO'
+   local MULLE_FLAG_LOG_SCRIPTS='NO'
+   local MULLE_FLAG_LOG_SETTINGS='NO'
+   local MULLE_FLAG_LOG_VERBOSE='NO'
+   local MULLE_FLAG_LOG_MERGE='NO'
+   local MULLE_TRACE_POSTPONE='NO'
+
+   #
+   # simple option handling
+   #
+   while [ $# -ne 0 ]
+   do
+      if options_technical_flags "$1"
+      then
+         shift
+         continue
+      fi
+
+      case "$1" in
+         -h*|--help|help)
+            usage "${MULLE_TRACE}"
+         ;;
+
+         --github|--github-user)
+            [ $# -eq 1 ] && fail "Missing argument to \"$1\""
+            shift
+
+            OPTION_GITHUB_USER="$1"
+         ;;
+
+         --git-terminal-prompt)
+            [ $# -eq 1 ] && fail "Missing argument to \"$1\""
+            shift
+
+            GIT_TERMINAL_PROMPT="$1"
+            export GIT_TERMINAL_PROMPT
+         ;;
+
+         --version)
+            printf "%s\n" "${MULLE_EXECUTABLE_VERSION}"
+            exit 0
+         ;;
+
+         -*)
+            log_error "Unknown option \"$1\""
+            usage "${MULLE_TRACE}"
+         ;;
+
+         *)
+            break
+         ;;
+      esac
+
+      shift
+   done
+
+   options_setup_trace "${MULLE_TRACE}"
+
+   local cmd="$1"
+   [ $# -eq 0 ] || shift
+
+   case "${cmd}" in
+      ""|'help')
+         usage
+      ;;
+
+      'compose'|'compose-url')
+         # shellcheck source=src/mulle-domain-compose.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-compose.sh"
+
+         domain_compose_url_main "$@"
+      ;;
+
+      'commit-for-tag')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_commit_for_tag_main "$@"
+      ;;
+
+      'libexec-dir'|'library-path')
+         printf "%s\n" "${MULLE_DOMAIN_LIBEXEC_DIR}"
+      ;;
+
+      'list')
+         # shellcheck source=src/mulle-domain-plugin.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh"
+
+         domain_plugin_main "$@" list
+      ;;
+
+      'nameguess'|'guess')
+         # shellcheck source=src/mulle-domain-guess.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-guess.sh"
+
+         domain_nameguess_main "$@"
+      ;;
+
+      'parse'|'parse-url')
+         # shellcheck source=src/mulle-domain-parse.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh"
+
+         domain_parse_url_main "$@"
+      ;;
+
+      'plugin')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh"
+
+         domain_plugin_main "$@"
+      ;;
+
+      'resolve')
+         # shellcheck source=src/mulle-domain-resolve.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-resolve.sh"
+
+         domain_resolve_main "$@"
+      ;;
+
+      'tags')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_tags_main "$@"
+      ;;
+
+      'tag-exists')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_tag_exists_main "$@"
+      ;;
+
+      'tags-with-commits')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_tags_with_commits_main "$@"
+      ;;
+
+      'tags-for-commit')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_tags_for_commit_main "$@"
+      ;;
+
+      'tag-aliases')
+         # shellcheck source=src/mulle-domain-commands.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh"
+
+         domain_get_tag_aliases_main "$@"
+      ;;
+
+      'typeguess')
+         # shellcheck source=src/mulle-domain-guess.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-guess.sh"
+
+         domain_typeguess_main "$@"
+      ;;
+
+      'uname')
+         printf "%s\n" "${MULLE_UNAME}"
+      ;;
+
+      'version')
+         printf "%s\n" "${MULLE_EXECUTABLE_VERSION}"
+         return 0
+      ;;
+
+      *)
+         usage "unknown command ${cmd}"
+      ;;
+   esac
+}
+
+
+########
+###
+### INIT
+###
+_init()
+{
+   #
+   # minimal setup exit
+   #
+   if [ "$1" = "version" ]
+   then
+      printf "%s\n" "${MULLE_EXECUTABLE_VERSION}"
+      exit 0
+   fi
+
+   if [ -z "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}" ]
+   then
+      MULLE_BASHFUNCTIONS_LIBEXEC_DIR="`mulle-bashfunctions-env libexec-dir 2> /dev/null`"
+      if [ -z "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}" ]
+      then
+         if [ -z "`command -v "${executablepath}"`" ]
+         then
+            echo "Fatal Error: Could not find mulle-bashfunctions-env in PATH ($PATH) - mulle-bashfunctions not installed ?" >&2
+         else
+            echo "Fatal Error: Could not find libexec of mulle-bashfunctions-env ($PWD)" >&2
+         fi
+         exit 1
+      fi
+   fi
+
+      # shellcheck source=../mulle-bashfunctions/src/mulle-string.sh
+   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" "minimal" ||
+      fail "failed to load bashfunctions from ${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}"
+
+   r_get_libexec_dir "$0" "mulle-domain" "mulle-domain-parse.sh"
+   MULLE_DOMAIN_LIBEXEC_DIR="${RVAL}"
+
+   #
+   # minimal setup exit
+   #
+   case "$1" in
+      "libexec-dir"|"library-path")
+         printf "%s\n" "${MULLE_DOMAIN_LIBEXEC_DIR}"
+         exit 0
+      ;;
+   esac
+
+   #  set -e # more pain then gain in the end
+   #  set -u # doesn't work with my style
+
+   trap trap_fail INT
+   set -o pipefail
+}
+###
+### INIT
+###
+########
+
+
+_init "$@" # needs params
+
+quote="'"
+args=""
+for arg in "$@"
+do
+   arg="${arg//${quote}/${quote}\"${quote}\"${quote}}"
+   args="${args} '${arg}'"
+done
+
+unset quote
+unset arg
+
+eval main "${MULLE_DOMAIN_FLAGS}" "${args}"

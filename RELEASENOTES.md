@@ -1,6 +1,6 @@
 ### 1.8.3
 
-* up to 3000 github tags can be fetched now, instead of 30 as before
+* up to 3000 github tags can be domained now, instead of 30 as before
 
 ### 1.8.2
 
@@ -45,15 +45,15 @@
 
 ### 1.6.4
 
-* fix default git branch checkout, be less verbose on fetch
+* fix default git branch checkout, be less verbose on domain
 
 ### 1.6.3
 
-* can now fetch repositories who dont have master
+* can now domain repositories who dont have master
 
 ### 1.6.2
 
-* a bit less verbose when fetching
+* a bit less verbose when domaining
 
 ### 1.6.1
 
@@ -80,11 +80,11 @@
 
 ### 1.4.1
 
-* internal rename of clone command to fetch
+* internal rename of clone command to domain
 
 ## 1.4.0
 
-* rename `MULLE_FETCH_CACHE_DIR` to `MULLE_FETCH_ARCHIVE_DIR` (as used by rest of mulle-sde)
+* rename `MULLE_DOMAIN_CACHE_DIR` to `MULLE_DOMAIN_ARCHIVE_DIR` (as used by rest of mulle-sde)
 
 
 ### 1.3.25
@@ -157,7 +157,7 @@
 
 ## 1.4.0
 
-* be more convenient, by supporting mulle-fetch `<url>`
+* be more convenient, by supporting mulle-domain `<url>`
 
 
 ### 1.3.8

@@ -8,8 +8,8 @@ digraph G {
         label = "Language agnostic";
 
         "mulle-sde"       -> "mulle-sourcetree"
-        "mulle-sourcetree"   -> "mulle-fetch"
+        "mulle-sourcetree" -> "mulle-domain"
 
-        "mulle-fetch"   [ color="dodgerblue"; fontcolor="dodgerblue"; penwidth="2"]
+        "mulle-domain"   [ color="dodgerblue"; fontcolor="dodgerblue"; penwidth="2"]
     }
 }

@@ -3,13 +3,13 @@
 [ "${TRACE}" = 'YES' ] && set -x
 
 
-run_mulle_fetch()
+run_mulle_domain()
 {
    log_fluff "####################################"
-   log_fluff ${MULLE_FETCH} ${MULLE_FETCH_FLAGS} "$@"
+   log_fluff ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
    log_fluff "####################################"
 
-   exekutor ${MULLE_FETCH} ${MULLE_FETCH_FLAGS} "$@"
+   exekutor ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
 }
 
 
@@ -27,45 +27,45 @@ expect_output()
 
 run_test1()
 {
-   if run_mulle_fetch guess 2> /dev/null
+   if run_mulle_domain guess # 2> /dev/null
    then
       fail "empty guess unexpectedly succeded"
    fi
    log_verbose "----- #1 PASSED -----"
 
-   result="`run_mulle_fetch guess /name`"
+   result="`run_mulle_domain nameguess /name`"
    expect_output "${result}" "name"
    log_verbose "----- #1 PASSED -----"
 
-   result="`run_mulle_fetch guess https://www.mulle-kybernetik.com/foo.git`"
+   result="`run_mulle_domain nameguess https://www.mulle-kybernetik.com/foo.git`"
    expect_output "${result}" "foo"
    log_verbose "----- #2 PASSED -----"
 
-   result="`run_mulle_fetch guess https://www.mulle-kybernetik.com/foo`"
+   result="`run_mulle_domain nameguess https://www.mulle-kybernetik.com/foo`"
    expect_output "${result}" "foo"
    log_verbose "----- #3 PASSED -----"
 
-   result="`run_mulle_fetch guess githost:foo`"
+   result="`run_mulle_domain nameguess githost:foo`"
    expect_output "${result}" "foo"
    log_verbose "----- #4 PASSED -----"
 
-   result="`run_mulle_fetch guess -s tar https://www.mulle-kybernetik.com/foo.tar`"
+   result="`run_mulle_domain nameguess -s tar https://www.mulle-kybernetik.com/foo.tar`"
    expect_output "${result}" "foo"
    log_verbose "----- #5 PASSED -----"
 
-   result="`run_mulle_fetch guess -s tar https://www.mulle-kybernetik.com/foo.tar.gz`"
+   result="`run_mulle_domain nameguess -s tar https://www.mulle-kybernetik.com/foo.tar.gz`"
    expect_output "${result}" "foo"
    log_verbose "----- #6 PASSED -----"
 
-   result="`run_mulle_fetch guess -s tar https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz`"
+   result="`run_mulle_domain nameguess -s tar https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz`"
    expect_output "${result}" "mulle-c11"
    log_verbose "----- #7 PASSED -----"
 
-   result="`run_mulle_fetch guess -s zip https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
+   result="`run_mulle_domain nameguess -s zip https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
    expect_output "${result}" "mulle-c11"
    log_verbose "----- #8 PASSED -----"
 
-   result="`run_mulle_fetch guess -s symlink /github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
+   result="`run_mulle_domain nameguess -s symlink /github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
    expect_output "${result}" "1.3.5.zip"
    log_verbose "----- #9 PASSED -----"
 
@@ -74,41 +74,41 @@ run_test1()
 
 run_test2()
 {
-   if run_mulle_fetch typeguess 2> /dev/null
+   if run_mulle_domain typeguess 2> /dev/null
    then
       fail "empty typeguess unexpectedly succeded"
    fi
    log_verbose "----- #10 PASSED -----"
 
-   result="`run_mulle_fetch typeguess /name`"
+   result="`run_mulle_domain typeguess /name`"
    expect_output "${result}" "local"
    log_verbose "----- #11 PASSED -----"
 
-   result="`run_mulle_fetch typeguess https://www.mulle-kybernetik.com/foo.git`"
+   result="`run_mulle_domain typeguess https://www.mulle-kybernetik.com/foo.git`"
    expect_output "${result}" "git"
    log_verbose "----- #12 PASSED -----"
 
-   result="`run_mulle_fetch typeguess https://www.mulle-kybernetik.com/foo`"
+   result="`run_mulle_domain typeguess https://www.mulle-kybernetik.com/foo`"
    expect_output "${result}" "git"
    log_verbose "----- #13 PASSED -----"
 
-   result="`run_mulle_fetch typeguess githost:foo`"
+   result="`run_mulle_domain typeguess githost:foo`"
    expect_output "${result}" "git"
    log_verbose "----- #14 PASSED -----"
 
-   result="`run_mulle_fetch typeguess https://www.mulle-kybernetik.com/foo.tar`"
+   result="`run_mulle_domain typeguess https://www.mulle-kybernetik.com/foo.tar`"
    expect_output "${result}" "tar"
    log_verbose "----- #15 PASSED -----"
 
-   result="`run_mulle_fetch typeguess https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz?whatever`"
+   result="`run_mulle_domain typeguess https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz?whatever`"
    expect_output "${result}" "tar"
    log_verbose "----- #17 PASSED -----"
 
-   result="`run_mulle_fetch typeguess https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
+   result="`run_mulle_domain typeguess https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
    expect_output "${result}" "zip"
    log_verbose "----- #18 PASSED -----"
 
-   result="`run_mulle_fetch typeguess idonotexisthere`"
+   result="`run_mulle_domain typeguess idonotexisthere`"
    expect_output "${result}" "none"
    log_verbose "----- #19 PASSED -----"
 }
@@ -116,7 +116,7 @@ run_test2()
 
 main()
 {
-   MULLE_FETCH_FLAGS="$@"
+   MULLE_DOMAIN_FLAGS="$@"
 
    _options_mini_main "$@"
 
@@ -133,7 +133,7 @@ init()
 
    . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" || exit 1
 
-   MULLE_FETCH="${MULLE_FETCH:-${PWD}/../../mulle-fetch}"
+   MULLE_DOMAIN="${MULLE_DOMAIN:-${PWD}/../../mulle-domain}"
 }
 
 

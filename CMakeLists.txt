@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project( mulle-fetch NONE)
+project( mulle-domain NONE)
 
 #
 # Primarily used for packaging on Linux
@@ -15,18 +15,18 @@ project( mulle-fetch NONE)
 # ```
 #
 
-execute_process( COMMAND ./mulle-fetch version
+execute_process( COMMAND ./mulle-domain version
                  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-                 OUTPUT_VARIABLE MULLE_FETCH_VERSION
+                 OUTPUT_VARIABLE MULLE_DOMAIN_VERSION
                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-message( STATUS "MULLE_FETCH_VERSION is ${MULLE_FETCH_VERSION} according to mulle-fetch")
+message( STATUS "MULLE_DOMAIN_VERSION is ${MULLE_DOMAIN_VERSION} according to mulle-domain")
 
 
-set( PROJECT_VERSION "${MULLE_FETCH_VERSION}")
+set( PROJECT_VERSION "${MULLE_DOMAIN_VERSION}")
 
 
 set( SCRIPTS
-mulle-fetch
+mulle-domain
 )
 
 
@@ -53,26 +53,26 @@ DESTINATION "bin")
 
 
 #
-# future: install into libexec/mulle-fetch/${MULLE_FETCH_VERSION}
+# future: install into libexec/mulle-domain/${MULLE_DOMAIN_VERSION}
 #         allows multiple versions to co-exist (does it really ?)
 #
 INSTALL( FILES ${LIBRARY_SCRIPTS}
 PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             GROUP_EXECUTE GROUP_READ
             WORLD_EXECUTE WORLD_READ
-DESTINATION "libexec/mulle-fetch")
+DESTINATION "libexec/mulle-domain")
 
 INSTALL( FILES ${SCM_PLUGIN_SCRIPTS}
 PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             GROUP_EXECUTE GROUP_READ
             WORLD_EXECUTE WORLD_READ
-DESTINATION "libexec/mulle-fetch/plugins/scm")
+DESTINATION "libexec/mulle-domain/plugins/scm")
 
 INSTALL( FILES ${DOMAIN_PLUGIN_SCRIPTS}
 PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             GROUP_EXECUTE GROUP_READ
             WORLD_EXECUTE WORLD_READ
-DESTINATION "libexec/mulle-fetch/plugins/domain")
+DESTINATION "libexec/mulle-domain/plugins/domain")
 
 
 ######

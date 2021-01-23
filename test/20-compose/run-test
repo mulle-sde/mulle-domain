@@ -1,0 +1,72 @@
+#! /usr/bin/env bash
+
+[ "${TRACE}" = 'YES' ] && set -x
+
+
+run_mulle_domain()
+{
+   log_fluff "####################################"
+   log_fluff ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
+   log_fluff "####################################"
+
+   exekutor ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
+}
+
+
+expect_output()
+{
+   local output="$1"
+   local expected="$2"
+
+   if exekutor [ "${output}" != "${expected}" ]
+   then
+      exekutor fail "Expected \"${expected}\" but got \"${output}\""
+   fi
+}
+
+
+run_test1()
+{
+   result="`run_mulle_domain compose --scm git --host foobar.com \
+                                     --repo mulle-c11 --user mulle-c github`"
+
+   expect_output "${result}" "https://foobar.com/mulle-c/mulle-c11.git"
+   log_verbose "----- #1 PASSED -----"
+
+   result="`run_mulle_domain compose --scm tar --host foobar.com \
+                                     --repo mulle-c11 --user mulle-c github`"
+   expect_output "${result}" "https://foobar.com/mulle-c/mulle-c11/archive/latest.tar.gz"
+   log_verbose "----- #2 PASSED -----"
+
+   result="`run_mulle_domain compose --scm zip --host foobar.com \
+                                     --tag 1.1.1 \
+                                     --repo mulle-c11 --user mulle-c github`"
+   expect_output "${result}" "https://foobar.com/mulle-c/mulle-c11/archive/1.1.1.zip"
+   log_verbose "----- #2 PASSED -----"
+}
+
+
+main()
+{
+   MULLE_DOMAIN_FLAGS="$@"
+
+   _options_mini_main "$@"
+
+   run_test1
+
+   log_info "----- ALL PASSED -----"
+}
+
+
+init()
+{
+   MULLE_BASHFUNCTIONS_LIBEXEC_DIR="`mulle-bashfunctions-env libexec-dir`" || exit 1
+
+   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" || exit 1
+
+   MULLE_DOMAIN="${MULLE_DOMAIN:-${PWD}/../../mulle-domain}"
+}
+
+
+init "$@"
+main "$@"

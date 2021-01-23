@@ -6,14 +6,14 @@ src/plugins/svn.sh \
 src/plugins/symlink.sh \
 src/plugins/tar.sh \
 src/plugins/zip.sh \
-src/mulle-fetch-archive.sh \
-src/mulle-fetch-commands.sh \
-src/mulle-fetch-curl.sh \
-src/mulle-fetch-git.sh \
-src/mulle-fetch-operation.sh \
-src/mulle-fetch-plugin.sh \
-src/mulle-fetch-source.sh \
-src/mulle-fetch-url.sh
+src/mulle-domain-archive.sh \
+src/mulle-domain-commands.sh \
+src/mulle-domain-curl.sh \
+src/mulle-domain-git.sh \
+src/mulle-domain-operation.sh \
+src/mulle-domain-plugin.sh \
+src/mulle-domain-source.sh \
+src/mulle-domain-url.sh
 
 CHECKSTAMPS=$(SCRIPTS:.sh=.chk)
 
@@ -30,9 +30,9 @@ SHELLFLAGS=-x -e SC2016,SC2034,SC2086,SC2164,SC2166,SC2006,SC1091,SC2039,SC2181,
 	- shellcheck $(SHELLFLAGS) $<
 	(shellcheck -f json $(SHELLFLAGS) $< | jq '.[].level' | grep -w error > /dev/null ) && exit 1 || touch $@
 
-all:	$(CHECKSTAMPS) mulle-fetch.chk shellcheck_check jq_check
+all:	$(CHECKSTAMPS) mulle-domain.chk shellcheck_check jq_check
 
-mulle-fetch.chk:	mulle-fetch
+mulle-domain.chk:	mulle-domain
 	- shellcheck $(SHELLFLAGS) $<
 	(shellcheck -f json $(SHELLFLAGS) $< | jq '.[].level' | grep -w error > /dev/null ) && exit 1 || touch $@
 

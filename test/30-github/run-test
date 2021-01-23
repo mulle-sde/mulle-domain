@@ -1,0 +1,65 @@
+#! /usr/bin/env bash
+
+[ "${TRACE}" = 'YES' ] && set -x
+
+
+run_mulle_domain()
+{
+   log_fluff "####################################"
+   log_fluff ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
+   log_fluff "####################################"
+
+   exekutor ${MULLE_DOMAIN} ${MULLE_DOMAIN_FLAGS} "$@"
+}
+
+
+expect_output()
+{
+   local output="$1"
+   local expected="$2"
+
+   if exekutor [ "${output}" != "${expected}" ]
+   then
+      exekutor fail "Expected \"${expected}\" but got \"${output}\""
+   fi
+}
+
+
+run_test1()
+{
+   result="`run_mulle_domain tags https://github.com/mulle-sde/test.git`"
+   expect_output "${result}" "0.1.0
+0.0.1"
+   log_verbose "----- #1 PASSED -----"
+
+   result="`run_mulle_domain tags https://github.com/mulle-sde/test/archive/0.1.0.tar.gz`"
+   expect_output "${result}" "0.1.0
+0.0.1"
+   log_verbose "----- #2 PASSED -----"
+}
+
+
+main()
+{
+   MULLE_DOMAIN_FLAGS="$@"
+
+   _options_mini_main "$@"
+
+   run_test1
+
+   log_info "----- ALL PASSED -----"
+}
+
+
+init()
+{
+   MULLE_BASHFUNCTIONS_LIBEXEC_DIR="`mulle-bashfunctions-env libexec-dir`" || exit 1
+
+   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" || exit 1
+
+   MULLE_DOMAIN="${MULLE_DOMAIN:-${PWD}/../../mulle-domain}"
+}
+
+
+init "$@"
+main "$@"
