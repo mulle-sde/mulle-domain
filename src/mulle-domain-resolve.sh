@@ -40,11 +40,8 @@ domain_resolve_usage()
 Usage:
    ${MULLE_USAGE_NAME} resolve <url> <qualifier>
 
-   Use the semver <qualifier> to determine the correct tag to use for
-   domaining a dependency from <url> for some known domains (e.g. github).
-   As a shortcut, if the qualifier is just matching a single tag like "=2.1.1"
-   or if the qualifier isn't a semver qualifier, it is used to construct
-   the name of the tag (e.g. "latest" -> "latest")
+   Uses the semver <qualifier> to determine the correct tag to use for
+   fetching a dependency from <url> for some known domains (e.g. github).
 
    You provide an url like 'https://github.com/mulle-c/mulle-c11' and a
    semver qualifier like '>=3.1.0 <4.0.0' and "resolve" will locate the best
@@ -52,8 +49,11 @@ Usage:
 
    https://github.com/mulle-c/mulle-c11/archive/4.1.0.tar.gz
 
+   As a shortcut, if the qualifier can match only a single tag like "=2.1.1",
+   it is used to construct the URL directly.
+
    mulle-domain has special treatment for a "latest" tag with the option
-   --latest. Theh the qualifier must be a tag name only. If that tag exists, it
+   --latest. The qualifier must then be a tag name only. If that tag exists, it
    will be matched. Otherwise the highest semver compatible tag is returned.
 
    See \`mulle-semver qualify help\` for more information about qualifiers.
@@ -63,9 +63,11 @@ Options:
    --latest                       : use "latest" special functionality
    --resolve-single-tag           : match even if tag only matched one version
    --no-resolve-single-tag        : the opposite of --resolve-single-tag
+
+Domains:
 EOF
 
-   domain_plugin_list >&2
+   domain_plugin_list | sed 's/^/   /' >&2
    exit 1
 }
 

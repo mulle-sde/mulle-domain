@@ -115,7 +115,7 @@ r_sr_tags_and_commits()
 
       if ! text="`sr_curl_html "${url}" `"
       then
-         log_warning "Failed to acquire tags from sr with \"${url}\"."
+         log_error "Failed to acquire tags from sr with \"${url}\"."
          RVAL=
          return 1
       fi
@@ -278,7 +278,6 @@ r_domain_sr_compose_url()
 }
 
 
-
 #
 # lists tag in one line, then commit in the next
 # hinges on the fact that sr emits "name" first
@@ -327,10 +326,10 @@ sr_initialize()
       return $?
    fi
 
-   if [ -z "${MULLE_DOMAIN_URL_SH}" ]
+   if [ -z "${MULLE_URL_SH}" ]
    then
-      # shellcheck source=mulle-domain-url.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-url.sh" || exit 1
+      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
+      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
    fi
 }
 

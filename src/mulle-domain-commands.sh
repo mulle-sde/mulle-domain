@@ -546,7 +546,7 @@ domain_common_option_shifts()
          [ "${OPTION_PER_PAGE}" -lt 1 ] && fail "Invalid number of entries"
          if [ "${OPTION_PER_PAGE}" -gt 100 ]
          then
-            log_warning "More than 100 entries per page is unlikely to work"
+            log_warning "Warning: more than 100 entries per page is unlikely to work"
          fi
          return 2
       ;;

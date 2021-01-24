@@ -12,8 +12,7 @@ src/mulle-domain-curl.sh \
 src/mulle-domain-git.sh \
 src/mulle-domain-operation.sh \
 src/mulle-domain-plugin.sh \
-src/mulle-domain-source.sh \
-src/mulle-domain-url.sh
+src/mulle-domain-source.sh
 
 CHECKSTAMPS=$(SCRIPTS:.sh=.chk)
 

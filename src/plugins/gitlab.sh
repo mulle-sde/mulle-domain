@@ -258,10 +258,11 @@ gitlab_initialize()
       return $?
    fi
 
-   if [ -z "${MULLE_DOMAIN_URL_SH}" ]
+
+   if [ -z "${MULLE_URL_SH}" ]
    then
-      # shellcheck source=mulle-domain-url.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-url.sh" || exit 1
+      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
+      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
    fi
 }
 

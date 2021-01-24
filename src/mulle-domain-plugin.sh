@@ -186,7 +186,7 @@ domain_load_plugin_if_needed()
    #
    if ! domain_plugin_load_if_present "${domain_identifier}" "domain"
    then
-      log_warning "Domain \"${domain_identifier}\" is not supported"
+      log_warning "Warning: domain \"${domain_identifier}\" is not supported"
       return 127
    fi
 }

@@ -313,15 +313,21 @@ domain_guess_initalize()
       . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh" || exit 1
    fi
 
-   if [ -z "${MULLE_DOMAIN_URL_SH}" ]
+   if [ -z "${MULLE_URL_SH}" ]
    then
-      # shellcheck source=mulle-domain-url.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-url.sh" || exit 1
+      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
+      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
    fi
 
-   if [ -z "${MULLE_PATH_INCLUDED_SH}" ]
+   if [ -z "${MULLE_STRING_SH}" ]
    then
-      # shellcheck source=../mulle-bashfunctions/src/mulle-path.sh
+      # shellcheck source=../../../mulle-bashfunctions/src/mulle-string.sh
+      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-string.sh"  || exit 1
+   fi
+
+   if [ -z "${MULLE_PATH_SH}" ]
+   then
+      # shellcheck source=../../../mulle-bashfunctions/src/mulle-path.sh
       . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-path.sh"  || exit 1
    fi
 }
