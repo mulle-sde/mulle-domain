@@ -325,11 +325,13 @@ domain_url_tags()
    log_entry "domain_url_tags" "$@"
 
    local url="$1"
+   local domain="$2"
 
-   local domain
-
-   r_url_get_domain "${url}"
-   domain="${RVAL}"
+   if [ -z "${domain}" ]
+   then
+      r_url_get_domain "${url}"
+      domain="${RVAL}"
+   fi
 
    local _user
    local _repo
@@ -345,11 +347,13 @@ domain_url_tags_for_commit()
    log_entry "domain_url_tags_for_commit" "$@"
 
    local url="$1"
+   local domain="$2"
 
-   local domain
-
-   r_url_get_domain "${url}"
-   domain="${RVAL}"
+   if [ -z "${domain}" ]
+   then
+      r_url_get_domain "${url}"
+      domain="${RVAL}"
+   fi
 
    local _user
    local _repo

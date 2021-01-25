@@ -59,10 +59,11 @@ Usage:
    See \`mulle-semver qualify help\` for more information about qualifiers.
 
 Options:
-   --scm <name>                   : URL kind to produce like tar, zip (git)
-   --latest                       : use "latest" special functionality
-   --resolve-single-tag           : match even if tag only matched one version
-   --no-resolve-single-tag        : the opposite of --resolve-single-tag
+   --domain <name>         : force use of a certain domain plugin (e.g. github)
+   --latest                : use "latest" special functionality
+   --no-resolve-single-tag : the opposite of --resolve-single-tag
+   --resolve-single-tag    : match even if tag only matched one version
+   --scm <name>            : URL kind to produce like tar, zip (git)
 
 Domains:
 EOF
@@ -82,13 +83,14 @@ r_resolve_semver_qualifier_to_tag()
 {
    log_entry "r_resolve_semver_qualifier_to_tag" "$@"
 
-   local qualifier="$1"
-   local url="$2"
+   local url="$1"
+   local qualifier="$2"
+   local domain="$3"
 
    local versions
 
    RVAL=
-   versions="`domain_url_tags "${url}"`"
+   versions="`domain_url_tags "${url}" "${domain}" `"
    [ $? -eq 1 ] && return 1
    if [ -z "${versions}" ]
    then
@@ -131,9 +133,10 @@ r_domain_resolve_qualifier_to_tag()
 {
    log_entry "r_domain_resolve_qualifier_to_tag" "$@"
 
-   local qualifier="$1"
-   local url="$2"
-   local resolve_single_tag="$3"
+   local url="$1"
+   local qualifier="$2"
+   local domain="$3"
+   local resolve_single_tag="$4"
 
    if [ -z "${MULLE_SEMVER_SEARCH_SH}" ]
    then
@@ -168,7 +171,7 @@ r_domain_resolve_qualifier_to_tag()
    case $rval in
       ${semver_empty_qualifier})
          # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag "*" "${url}"
+         if ! r_resolve_semver_qualifier_to_tag "${url}" "*" "${domain}"
          then
             rval=2
          fi
@@ -192,7 +195,7 @@ r_domain_resolve_qualifier_to_tag()
          # we figured out the tag already
          if [ "${resolve_single_tag}" = 'YES' ]
          then
-            if ! r_resolve_semver_qualifier_to_tag "${qualifier}" "${url}"
+            if ! r_resolve_semver_qualifier_to_tag "${url}" "${qualifier}" "${domain}"
             then
                rval=2
             fi
@@ -202,7 +205,7 @@ r_domain_resolve_qualifier_to_tag()
 
       ${semver_multi_qualifier})
          # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag "${qualifier}" "${url}"
+         if ! r_resolve_semver_qualifier_to_tag  "${url}" "${qualifier}" "${domain}"
          then
             rval=2
          fi
@@ -227,6 +230,7 @@ domain_resolve_main()
    local OPTION_SCM="tar"
    local OPTION_RESOLVE_SINGLE_TAG='YES'
    local OPTION_EXACT='NO'
+   local OPTION_DOMAIN
 
    if [ -z "$MULLE_DOMAIN_PLUGIN_SH" ]
    then
@@ -241,6 +245,13 @@ domain_resolve_main()
       case "$1" in
          -h*|--help|help)
             domain_resolve_usage
+         ;;
+
+         --domain)
+            [ $# -eq 1 ] && domain_resolve_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_DOMAIN="$1"
          ;;
 
          --latest)
@@ -295,15 +306,16 @@ domain_resolve_main()
 
       if [ $rval -eq 2 -a "${OPTION_LATEST}" = 'YES' ]
       then
-         r_domain_resolve_qualifier_to_tag "*" "${url}"
+         r_domain_resolve_qualifier_to_tag "${url}" "*" "${OPTION_DOMAIN}"
          rval=$?
 
          [ $rval -ne 0 ] && return $rval
          tag="${RVAL}"
       fi
    else
-      r_domain_resolve_qualifier_to_tag "${qualifier}" \
-                                        "${url}" \
+      r_domain_resolve_qualifier_to_tag "${url}" \
+                                        "${qualifier}" \
+                                        "${OPTION_DOMAIN}" \
                                         "${OPTION_RESOLVE_SINGLE_TAG}"
       rval=$?
       case "${rval}" in
