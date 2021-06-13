@@ -84,18 +84,16 @@ r_resolve_semver_qualifier_to_tag()
    log_entry "r_resolve_semver_qualifier_to_tag" "$@"
 
    local url="$1"
-   local qualifier="$2"
-   local domain="$3"
+   local domain="$2"
+   local qualifier="$3"
+   local versions=$4
 
-   local versions
+   local rval
 
-   RVAL=
-   versions="`domain_url_tags "${url}" "${domain}" `"
-   [ $? -eq 1 ] && return 1
-   if [ -z "${versions}" ]
-   then
-      return 2
-   fi
+   r_domain_lazy_url_tags "${url}" "${domain}" "${versions}"
+   rval=$?
+   [ $rval -ne 0 ] && return $rval
+   versions="${RVAL}"
 
    local extglob_memo
 
@@ -116,11 +114,13 @@ r_resolve_exact_match_tag()
 {
    log_entry "r_resolve_exact_match_tag" "$@"
 
-   local tag="$1"
-   local url="$2"
+   local url="$1"
+   local domain="$2"
+   local tag="$3"
+   local versions="$4"
 
    RVAL=
-   if find_exact_match_tag "${url}" "${tag}"
+   if domain_find_exact_match_tag "${url}" "${domain}" "${tag}" "${versions}"
    then
       RVAL="${tag}"
       return 0
@@ -129,14 +129,16 @@ r_resolve_exact_match_tag()
 }
 
 
+
 r_domain_resolve_qualifier_to_tag()
 {
    log_entry "r_domain_resolve_qualifier_to_tag" "$@"
 
    local url="$1"
-   local qualifier="$2"
-   local domain="$3"
+   local domain="$2"
+   local qualifier="$3"
    local resolve_single_tag="$4"
+   local versions="$5"
 
    if [ -z "${MULLE_SEMVER_SEARCH_SH}" ]
    then
@@ -171,7 +173,10 @@ r_domain_resolve_qualifier_to_tag()
    case $rval in
       ${semver_empty_qualifier})
          # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag "${url}" "*" "${domain}"
+         if ! r_resolve_semver_qualifier_to_tag "${url}" \
+                                                "${domain}" \
+                                                "*" \
+                                                "${versions}"
          then
             rval=2
          fi
@@ -182,7 +187,10 @@ r_domain_resolve_qualifier_to_tag()
          RVAL="${qualifier}"
          if [ "${resolve_single_tag}" = 'YES' ]
          then
-            if ! r_resolve_exact_match_tag "${qualifier}" "${url}"
+            if ! r_resolve_exact_match_tag "${url}" \
+                                           "${domain}" \
+                                           "${qualifier}" \
+                                           "${versions}"
             then
                rval=2
             fi
@@ -195,7 +203,10 @@ r_domain_resolve_qualifier_to_tag()
          # we figured out the tag already
          if [ "${resolve_single_tag}" = 'YES' ]
          then
-            if ! r_resolve_semver_qualifier_to_tag "${url}" "${qualifier}" "${domain}"
+            if ! r_resolve_semver_qualifier_to_tag "${url}" \
+                                                   "${domain}" \
+                                                   "${qualifier}" \
+                                                   "${versions}"
             then
                rval=2
             fi
@@ -205,7 +216,10 @@ r_domain_resolve_qualifier_to_tag()
 
       ${semver_multi_qualifier})
          # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag  "${url}" "${qualifier}" "${domain}"
+         if ! r_resolve_semver_qualifier_to_tag  "${url}" \
+                                                 "${domain}" \
+                                                 "${qualifier}" \
+                                                 "${versions}"
          then
             rval=2
          fi
@@ -295,27 +309,49 @@ domain_resolve_main()
    local url
    local qualifier
    local tag
+   local versions
 
    RVAL=
-
    if [ "${OPTION_LATEST}" = 'YES' ]
    then
-      find_exact_match_tag "${url}" "${qualifier}"
-      rval=$?
-      [ $rval -ne 0 ] && return $rval
-
-      if [ $rval -eq 2 -a "${OPTION_LATEST}" = 'YES' ]
+      # avoid doing this twice, so do it ahead of _domain_find_exact_match_tag
+      # and _r_domain_resolve_qualifier_to_tag
+      r_domain_lazy_url_tags "${url}" "${OPTION_DOMAIN}"
+      [ $? -eq 1 ] && return 1
+      if [ -z "${RVAL}" ]
       then
-         r_domain_resolve_qualifier_to_tag "${url}" "*" "${OPTION_DOMAIN}"
-         rval=$?
-
-         [ $rval -ne 0 ] && return $rval
-         tag="${RVAL}"
+         return 2
       fi
+      versions="${RVAL}"
+
+      domain_find_exact_match_tag "${url}" "${OPTION_DOMAIN}" "${qualifier}" "${versions}"
+      rval=$?
+
+      case ${rval} in
+         0)
+            tag="${qualifier}"
+         ;;
+
+         2)
+            r_domain_resolve_qualifier_to_tag "${url}" \
+                                              "${OPTION_DOMAIN}" \
+                                              "*" \
+                                              "${OPTION_RESOLVE_SINGLE_TAG}" \
+                                              "${versions}"
+            rval=$?
+
+            [ $rval -ne 0 ] && return $rval
+            tag="${RVAL}"
+         ;;
+
+         *)
+            return $rval
+         ;;
+      esac
    else
       r_domain_resolve_qualifier_to_tag "${url}" \
-                                        "${qualifier}" \
                                         "${OPTION_DOMAIN}" \
+                                        "${qualifier}" \
                                         "${OPTION_RESOLVE_SINGLE_TAG}"
       rval=$?
       case "${rval}" in
@@ -335,11 +371,12 @@ domain_resolve_main()
 
    [ -z "${tag}" ] && internal_fail "empty tag returned"
 
-   domain_compose_url_main --tag "${tag}" \
-                           --scm "${OPTION_SCM}" \
-                           "${url}" || exit 1
+   if ! r_domain_url_compose_url "${url}" "" "" "${tag}" "${OPTION_SCM}"
+   then
+      return 1
+   fi
 
-   return $rval
+   printf "%s\n" "${RVAL}"
 }
 
 

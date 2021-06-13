@@ -60,26 +60,29 @@ domain_plugin_load_if_present()
 
    local name="$1"
 
+   [ -z "${name}" ] && return 127 # don't warn though, it's boring
+
    local variable
 
    r_uppercase "${name}"
-   variable="_MULLE_DOMAIN_PLUGIN_LOADED_${RVAL}"
+   variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-   if [ "${!variable}" = 'YES' ]
+   if [ ! -z "${!variable}" ]
    then
       return 0
    fi
 
    if [ ! -f "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins/${name}.sh" ]
    then
-      log_verbose "\"${name}\" is not supported (no plugin found)"
+      log_verbose "Domain \"${name}\" is not supported (no plugin found)"
       return 127
    fi
 
    # shellcheck source=plugins/scm/symlink.sh
    . "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins/${name}.sh"
 
-   eval "${variable}='YES'"
+   # doppelt gemoppelt, macht eigentlich schon das plugin
+   eval "${variable}='included'"
 
    return 0
 }
@@ -92,9 +95,11 @@ domain_plugin_load()
 
    local name="$1"
 
+   [ -z "${name}" ] && fail "Empty domain name"
+
    if ! domain_plugin_load_if_present "${name}"
    then
-      fail "\"${name}\" is not supported (no plugin found)"
+      fail "Domain \"${name}\" is not supported (no plugin found)"
    fi
 }
 
@@ -127,34 +132,34 @@ domain_plugin_load_all()
 {
    log_entry "domain_plugin_load_all"
 
-   local upcase
-   local plugindefine
-   local pluginpath
-   local name
 
    [ -z "${DEFAULT_IFS}" ] && internal_fail "DEFAULT_IFS not set"
    [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
 
    log_fluff "Loading plugins..."
 
+   local variable
+   local pluginpath
+
    IFS=$'\n'
    for pluginpath in `ls -1 "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins"/*.sh`
    do
       IFS="${DEFAULT_IFS}"
 
-      name="`basename -- "${pluginpath}" .sh`"
-
-      r_identifier "${name}"
+      r_extensionless_basename "${pluginpath}"
+      r_identifier "${RVAL}"
       r_uppercase "${RVAL}"
-      plugindefine="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
+      variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-      if [ -z "${!plugindefine}" ]
+      if [ ! -z "${!variable}" ]
       then
-         # shellcheck source=plugins/symlink.sh
-         . "${pluginpath}"
-
-         log_fluff "plugin \"${name}\" loaded"
+         continue
       fi
+
+      # shellcheck source=plugins/github.sh
+      . "${pluginpath}" || exit 1
+
+      eval "${variable}='included'"
    done
 
    IFS="${DEFAULT_IFS}"
@@ -176,17 +181,12 @@ domain_load_plugin_if_needed()
    r_identifier "${domain}"
    domain_identifier="${RVAL}"
 
-   if [ -z "${MULLE_DOMAIN_PLUGIN_SH}" ]
-   then
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh"
-   fi
-
    #
    # if unsupported just emit the URL as is
    #
    if ! domain_plugin_load_if_present "${domain_identifier}" "domain"
    then
-      log_warning "Warning: domain \"${domain_identifier}\" is not supported"
+      log_fluff "Domain \"${domain_identifier}\" is not supported"
       return 127
    fi
 }

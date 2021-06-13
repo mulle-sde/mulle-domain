@@ -38,12 +38,13 @@ domain_compose_url_usage()
 
    cat <<EOF >&2
 Usage:
-   ${MULLE_USAGE_NAME} compose [options] <domain>
+   ${MULLE_USAGE_NAME} compose [options] [domain]
 
    Create a dependency URL for a known domain and you generally will also
    need to specify a repository name at least. The known domains are listed
    on the bottom. You can use 'github' as the composition domain, but use
-   the --host option tp specify a different, compatible server.
+   the --host option tp specify a different, compatible server. You need
+   to specify a domain!
 
    Example:
       ${MULLE_USAGE_NAME} compose --host foobar.com \\
@@ -54,6 +55,7 @@ Usage:
       https://github.com/mulle-c/mulle-allocator/archive/latest.tar.gz
 
 Options:
+   --domain <name>    : you an specify the requied domain also as an option
    --host <name>      : specify a host like git.foobar.com
    --repo <repo>      : specify the reposiory required
    --scheme <scheme>  : specify a scheme (https)
@@ -72,6 +74,7 @@ EOF
 #
 # Use information from url if user/repo are not set. Use URL to determine
 # plugin domain. (main difference to r_domain_compose_url)
+# Used by resolve, not by compose_main.
 #
 r_domain_url_compose_url()
 {
@@ -96,7 +99,7 @@ r_domain_url_compose_url()
    fi
 
    r_url_get_domain "${url}"
-   domain="${RVAL}"
+   domain="${RVAL:-generic}"
 
    if [ -z "${user}" -o -z "${repo}" ]
    then
@@ -115,6 +118,7 @@ r_domain_url_compose_url()
    if [ "${MULLE_FLAG_LOG_SETTINGS}" = 'YES' ]
    then
       log_trace2 "url    : ${url}"
+      log_trace2 "domain : ${domain}"
       log_trace2 "user   : ${user}"
       log_trace2 "repo   : ${repo}"
       log_trace2 "tag    : ${tag}"
@@ -132,9 +136,11 @@ domain_compose_url_main()
 {
    log_entry "domain_compose_url_main" "$@"
 
-   local OPTION_USER="whoever"
+   local OPTION_USER
    local OPTION_REPO="whatever"
    local OPTION_SCHEME
+   local OPTION_BRANCH
+   local OPTION_DOMAIN
    local OPTION_TAG
    local OPTION_HOST
    local OPTION_SCM="tar"
@@ -146,11 +152,25 @@ domain_compose_url_main()
             domain_compose_url_usage
          ;;
 
-         --scm)
+         --branch)
             [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
             shift
 
-            OPTION_SCM="$1"
+            OPTION_BRANCH="$1"
+         ;;
+
+         --domain)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_DOMAIN="$1"
+         ;;
+
+         --host)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_HOST="$1"
          ;;
 
          --repo)
@@ -167,18 +187,11 @@ domain_compose_url_main()
             OPTION_SCHEME="$1"
          ;;
 
-         --user)
+         --scm)
             [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
             shift
 
-            OPTION_USER="$1"
-         ;;
-
-         --host)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
-            shift
-
-            OPTION_HOST="$1"
+            OPTION_SCM="$1"
          ;;
 
          --tag)
@@ -186,6 +199,13 @@ domain_compose_url_main()
             shift
 
             OPTION_TAG="$1"
+         ;;
+
+         --user)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_USER="$1"
          ;;
 
          -*)
@@ -200,22 +220,36 @@ domain_compose_url_main()
       shift
    done
 
-   [ $# -ne 1 ] && domain_compose_url_usage
+   local domain
 
-   local domain="$1"
-   shift
+   if [ ! -z "${OPTION_DOMAIN}" ]
+   then
+      [ $# -ne 0 ] && domain_compose_url_usage "Superflous arguments $*"
+      domain="${OPTION_DOMAIN}"
+   else
+      [ $# -eq 0 ] && domain_compose_url_usage "Missing domain argument"
+      [ $# -gt 1 ] && shift && domain_compose_url_usage "Superflous arguments $*"
 
-   if ! r_domain_url_compose_url "${domain}" \
-                                 "${OPTION_USER}" \
-                                 "${OPTION_REPO}" \
-                                 "${OPTION_TAG}" \
-                                 "${OPTION_SCM}" \
-                                 "${OPTION_SCHEME}" \
-                                 "${OPTION_HOST}"
+      domain="$1"
+      shift
+   fi
+
+   if ! r_domain_compose_url "${domain}" \
+                             "${OPTION_USER}" \
+                             "${OPTION_REPO}" \
+                             "${OPTION_TAG}" \
+                             "${OPTION_SCM}" \
+                             "${OPTION_SCHEME}" \
+                             "${OPTION_HOST}"
    then
       return 2
    fi
 
+   if [ ! -z "${OPTION_BRANCH}" ]
+   then
+      RVAL="${RVAL}##${OPTION_BRANCH}"
+   fi
+   log_debug "Composed URL: ${url}"
    printf "%s\\n" "${RVAL}"
 }
 

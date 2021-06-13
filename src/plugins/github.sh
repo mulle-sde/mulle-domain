@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_DOMAIN_GITHUB_SH="included"
+MULLE_DOMAIN_PLUGIN_GITHUB_SH="included"
 
 
 github_curl_json()
@@ -129,6 +129,11 @@ r_github_tags_json()
    # Instead of parsing ther response header we run through the pages, until
    # we get nothing back. Costs us one extra curl call though
    #
+   # MEMO: 22.3.2021 github is now pissy, and doesn't serve the second page
+   # with tags. Is this because openssl has too many or is it because openssl
+   # has maybe just reached 100 tags ? Nope it seems it just rate limits it
+   # to death :(
+   #
    local page
    local n
    local result
@@ -152,7 +157,8 @@ r_github_tags_json()
       if ! text="`github_curl_json "${url}" `"
       then
          log_warning "Failed to fetch tags from github with \"${url}\".
-${C_VERBOSE}Tip: Happens on github if there are no tags (or no repo even :))."
+${C_VERBOSE}Tip: Happens on github if you run into hourly limits.
+Or maybe there are no tags (or no repo even :))."
          RVAL=
          return 1
       fi
@@ -164,18 +170,18 @@ ${C_VERBOSE}Tip: Happens on github if there are no tags (or no repo even :))."
       #    break
       # fi
 
+      r_concat_json_arrays "${result}" "${text}"
+      result="${RVAL}"
+
       # assume it's an array of dictionaries, count opening '{'. A dict value
       # starts with  "key:" {  so they won't match.
       n="`"${EGREP:-egrep}" '^\ *{$' <<< "${text}" | wc -l `"
+      log_debug "Received ${n## } of max ${perpage} tags"
+
       if [ $n -lt ${perpage} ]
       then
-         r_concat_json_arrays "${result}" "${text}"
-         result="${RVAL}"
          break
       fi
-
-      r_concat_json_arrays "${result}" "${text}"
-      result="${RVAL}"
 
       page=$((page + 1))
    done
@@ -246,8 +252,9 @@ domain_github_parse_url()
 
    case "${s}" in
       archive/*)
-         s="${s#archive/}"   # checkout rest
-         s="${s%.gz}"        # remove a .gz if any
+         s="${s##*/}"        # checkout filename
+         r_url_remove_file_compression_extension "${s}"
+         s="${RVAL}"
 
          _scm="${s##*.}"
          case "${_scm}" in
@@ -255,6 +262,7 @@ domain_github_parse_url()
                _scm='tar'
             ;;
          esac
+
          _tag="${s%.${_scm}}"
       ;;
 
@@ -277,7 +285,7 @@ r_domain_github_compose_url()
 {
    log_entry "r_domain_github_compose_url" "$@"
 
-   local user="$1"
+   local user="${1:-whoever}"
    local repo="$2"
    local tag="$3"
    local scm="$4"

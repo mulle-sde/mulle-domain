@@ -210,7 +210,7 @@ domain_typeguess_main()
       return
    fi
 
-   if domain_url_parse_url "${url}" "github" && [ ! -z "${_scm}" ]
+   if domain_url_parse_url "${url}" "generic" && [ ! -z "${_scm}" ]
    then
       printf "%s\n" "${_scm}"
       return
@@ -259,8 +259,8 @@ domain_nameguess_main()
       shift
    done
 
-   [ $# -eq 0 ] && log_error  && domain_typeguess_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_typeguess_usage "superflous arguments \"$*\""
+   [ $# -eq 0 ] && log_error  && domain_nameguess_usage "missing argument"
+   [ $# -gt 1 ] && shift && domain_nameguess_usage "superflous arguments \"$*\""
 
    local url="$1"             # URL of the clone
 
@@ -280,7 +280,7 @@ domain_nameguess_main()
             return
          fi
 
-         if domain_url_parse_url "${url}" "github" && [ ! -z "${_repo}" ]
+         if domain_url_parse_url "${url}" "generic" && [ ! -z "${_repo}" ]
          then
             printf "%s\n" "${_repo}"
             return
@@ -291,6 +291,7 @@ domain_nameguess_main()
          # remove compression extensions
          RVAL="${RVAL%.gz}"
          RVAL="${RVAL%.xz}"
+         RVAL="${RVAL%.bz2}"
 
          r_extensionless_basename "${RVAL}"
       ;;

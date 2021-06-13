@@ -269,7 +269,10 @@ domain_tags_for_commit()
 
    domain_tags_with_commits "${domain}" "${user}" "${repo}" \
    | sed -n "{h;n;p;g;p}" \
-   | sed -n "/^${pattern}\$/{n;p}"
+   | sed -n "/^${pattern}\$/{
+n
+p
+}"
 }
 
 
@@ -329,7 +332,7 @@ domain_url_tags()
 
    if [ -z "${domain}" ]
    then
-      r_url_get_domain "${url}"
+      r_url_get_domain_nofail "${url}"
       domain="${RVAL}"
    fi
 
@@ -338,7 +341,12 @@ domain_url_tags()
 
    domain_parse_url "${domain}" "${url}"
    domain_tags_with_commits "${domain}" "${_user}" "${_repo}" \
-   |  sed -n "{h;n;g;p}"
+   |  "${SED:-sed}" -n "{
+h
+n
+g
+p
+}"
 }
 
 
@@ -351,8 +359,7 @@ domain_url_tags_for_commit()
 
    if [ -z "${domain}" ]
    then
-      r_url_get_domain "${url}"
-      domain="${RVAL}"
+      r_url_get_domain_nofail "${url}"
    fi
 
    local _user
@@ -367,43 +374,49 @@ domain_url_tags_for_commit()
 ##
 ## Conveniences for above API
 ##
-r_domain_most_recent_tag()
+r_domain_lazy_url_tags()
 {
-   log_entry "r_domain_most_recent_tag" "$@"
+   log_entry "r_domain_lazy_url_tags" "$@"
 
    local url="$1"
+   local domain="$2"
+   local versions="$3"
 
-   RVAL=
-   versions="`domain_url_tags "${url}"`"
-   [ $? -eq 1 ] && return 1
    if [ -z "${versions}" ]
    then
-      return 2
+      RVAL="`domain_url_tags "${url}" "${domain}"`"
+      [ $? -eq 1 ] && return 1
+      if [ -z "${RVAL}" ]
+      then
+         return 2
+      fi
+   else
+      RVAL="${versions}"
    fi
 
-   # get head
-   IFS=$'\n' read RVAL <<< "${versions}"
-   return $rval
+   return 0
 }
 
 
-find_exact_match_tag()
+# only returns exact match 0 or not found 2 (error 1)
+domain_find_exact_match_tag()
 {
-   log_entry "find_exact_match_tag" "$@"
+   log_entry "domain_find_exact_match_tag" "$@"
 
    local url="$1"
-   local tag="$2"
+   local domain="$2"
+   local tag="$3"
+   local versions="$4"
 
-   local versions
+   local rval
+
+   r_domain_lazy_url_tags "${url}" "${domain}" "${versions}"
+   rval=$?
+   [ $rval -ne 0 ] && return $rval
+
+   versions="${RVAL}"
+
    local version
-
-   RVAL=
-   versions="`domain_url_tags "${url}"`"
-   [ $? -eq 1 ] && return 1
-   if [ -z "${versions}" ]
-   then
-      return 2
-   fi
 
    IFS=$'\n'; set -f
    for version in ${versions}
@@ -853,6 +866,7 @@ domain_tags_main()
 
    local OPTION_SCM="tar"
    local OPTION_SEMVER='YES'
+   local OPTION_DOMAIN=
 
    while [ $# -ne 0 ]
    do
@@ -863,6 +877,13 @@ domain_tags_main()
 
          --all)
             OPTION_SEMVER='NO'
+         ;;
+
+         --domain)
+            [ $# -eq 1 ] && domain_resolve_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_DOMAIN="$1"
          ;;
 
          -*)
@@ -884,7 +905,7 @@ domain_tags_main()
 
    url="$1"
 
-   versions="`domain_url_tags "${url}"`"
+   versions="`domain_url_tags "${url}" "${OPTION_DOMAIN}" `"
 
    if [ "${OPTION_SEMVER}" = 'YES' ]
    then

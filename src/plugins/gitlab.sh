@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_DOMAIN_GITLAB_SH="included"
+MULLE_DOMAIN_PLUGIN_GITLAB_SH="included"
 
 
 gitlab_curl_json()
@@ -157,7 +157,9 @@ domain_gitlab_parse_url()
          s="${s#${_tag}/}"
 
 
-         s="${s%.gz}"        # remove a .gz if any
+         r_url_remove_file_compression_extension "${s}"
+         s="${RVAL}"
+
          _scm="${s##*.}"
          case "${_scm}" in
             'tgz')

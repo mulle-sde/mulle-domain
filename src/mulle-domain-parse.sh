@@ -40,7 +40,9 @@ Usage:
    ${MULLE_USAGE_NAME} parse-url [options] <url>
 
    Parse a repository URL into constituent parts for known domains. This is
-   not a general parser. If the domain is unknown, the result will be empty.
+   not a general parser. If the domain is unknown, the result will be empty,
+   when guessing is disabled. If the domain can not be guessed then the
+   "generic" domain will be used to parse the URL.
 
    The parse values are returned as evaluatable bash assignments:
 
@@ -56,11 +58,62 @@ Usage:
       branch=''
       tag=''
 
+Options:
+   --guess                    : guess domain from URL format (default)
+   --no-guess                 : derive domain from URL host part
+   --domain <domain>          : use domain instead of deriving it from URL
+   --fallback-domain <domain> : use <domain>, if domain from URL is unguessable
+   --no-fallback              : don't use a fallback if guessing fails
+
 Domains:
 EOF
    domain_plugin_list | sed 's/^/   /' >&2
 
    exit 1
+}
+
+
+r_url_guess_domain()
+{
+   local url="$1"
+
+   local host
+   local uri
+
+   uri="${url#*://}"
+   host="${uri%%/*}"
+
+   case "${host}" in
+      *.sr.ht|sr.ht)
+         RVAL="sr"
+         return 0
+      ;;
+
+      gitlab.*|*.gitlab.*)
+         RVAL="gitlab"
+         return 0
+      ;;
+
+      github.*|*.github.*)
+         RVAL="github"
+         return 0
+      ;;
+   esac
+
+   case "${uri}" in
+      # https://gitlab.freedesktop.org/freetype/freetype/-/archive/VER-2-10-4/freetype-VER-2-10-4.zip
+      */*/*/-/archive/*/*\.zip|*/*/*/-/archive/*/*\.tar\.*|*/*/*/-/archive/*/*\.tar)
+         RVAL="gitlab"
+         return 0
+      ;;
+
+      # https://github.com/mulle-sde/github-ci/archive/v1.tar.gz
+      */*/archive/*\.tar\.*|/*/archive/*\.tar|*/*/archive/*.zip)
+         RVAL="generic"
+         return 0
+      ;;
+   esac
+   return 1
 }
 
 
@@ -101,6 +154,13 @@ r_url_get_domain()
 }
 
 
+r_url_get_domain_nofail()
+{
+   r_url_get_domain "$@"
+
+   [ -z "${RVAL}" ] && fail "Couldn't get domain from URL ${url}"
+}
+
 
 #
 # _domain:
@@ -123,6 +183,8 @@ domain_url_parse_url()
    local rval
 
    domain="${domain:-${_domain}}"
+   domain="${domain:-generic}"
+
    domain_parse_url "${domain}" "${url}"
    rval=$?
 
@@ -146,9 +208,12 @@ domain_parse_url_main()
    log_entry "domain_parse_url_main" "$@"
 
    local OPTION_USER
+   local OPTION_PREFIX
    local OPTION_REPO
    local OPTION_TAG
+   local OPTION_GUESS='YES'
    local OPTION_SCM="tar"
+   local OPTION_FALLBACK_DOMAIN="generic"
 
    while [ $# -ne 0 ]
    do
@@ -157,11 +222,40 @@ domain_parse_url_main()
             domain_parse_url_usage
          ;;
 
+         --guess)
+            OPTION_GUESS='YES'
+         ;;
+
+         --no-guess)
+            OPTION_GUESS='NO'
+         ;;
+
          --domain)
             [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
             shift
 
             OPTION_DOMAIN="$1"
+         ;;
+
+         --prefix)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_PREFIX="$1"
+         ;;
+
+         --no-fallback)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_FALLBACK_DOMAIN=""
+         ;;
+
+         --fallback-domain)
+            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            shift
+
+            OPTION_FALLBACK_DOMAIN="$1"
          ;;
 
          -*)
@@ -196,8 +290,51 @@ domain_parse_url_main()
       ;;
    esac
 
-   if ! domain_url_parse_url "${url}" "${OPTION_DOMAIN}"
+   local domain
+
+   domain="${OPTION_DOMAIN}"
+   if [ -z "${domain}" ]
    then
+      if [ "${OPTION_GUESS}" = 'YES' ]
+      then
+         if r_url_guess_domain "${url}"
+         then
+            domain="${RVAL}"
+            log_verbose "Guessed domain is \"${RVAL}\""
+         fi
+      fi
+
+      if [ -z "${domain}" ]
+      then
+         r_url_get_domain "${url}"
+         domain="${RVAL}"
+         log_verbose "Derived domain as \"${domain}\""
+      fi
+   fi
+
+   if [ -z "${domain}" ] || ! domain_load_plugin_if_needed "${domain}"
+   then
+      if [ -z "${OPTION_FALLBACK_DOMAIN}" ]
+      then
+         fail "Can't parse unkown domain \"${domain}\".
+${C_INFO}Tip: Maybe use the --fallback-domain option ?"
+      fi
+      log_verbose "Using fallback domain \"${OPTION_FALLBACK_DOMAIN}\""
+      domain="${OPTION_FALLBACK_DOMAIN}"
+   fi
+
+   #
+   # make these only warnings, so we can turn them off in scripts
+   #
+   if ! domain_load_plugin_if_needed "${domain}"
+   then
+      log_warning "Can't parse unkown domain \"${domain}\""
+      return 1
+   fi
+
+   if ! domain_url_parse_url "${url}" "${domain}"
+   then
+      log_warning "Could not parse URL for domain \"${domain}\""
       return 1
    fi
 
@@ -219,13 +356,13 @@ domain_parse_url_main()
    printf -v _tag    "%q" "${_tag}"
 
    cat <<EOF
-scheme=${_scheme}
-domain=${_domain}
-scm=${_scm}
-user=${_user}
-repo=${_repo}
-branch=${_branch}
-tag=${_tag}
+${OPTION_PREFIX}scheme=${_scheme}
+${OPTION_PREFIX}domain=${_domain}
+${OPTION_PREFIX}scm=${_scm}
+${OPTION_PREFIX}user=${_user}
+${OPTION_PREFIX}repo=${_repo}
+${OPTION_PREFIX}branch=${_branch}
+${OPTION_PREFIX}tag=${_tag}
 EOF
 }
 
