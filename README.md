@@ -1,16 +1,24 @@
 # mulle-domain
 
-🏰 URL management and tag resolution for repositories
+🏰 URL composition/parsing and tag resolution for repositories
 
 ![Last version](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg)
 
 Parses archive and repository URLs like
 `https://github.com/mulle-sde/mulle-sde-developer.git` to determine the project
-name `mulle-sde-developer` in this case. Also composes URLs bases on the
+name (`mulle-sde-developer` in this case). Also can compose URLs based on the
 hoster domain and the project name.
 
 mulle-domain has a plugin API, to manage multiple hosting domains such as
 **github** or **gitlab**.
+
+Domain      | Supports            | Notes
+------------|---------------------|-----------------------
+generic     | git, tar, zip       | Heuristic approach
+github      | tags, git, tar, zip | github API is severely rate-limited
+gitlab      | tags, git, tar, zip |
+sr          | tags, git, tar, zip |
+sourceforge | tar                 | Very barebones
 
 With the help of the hosters public API and
 [mulle-semver](//github.com/mulle-sde/mulle-semver), mulle-domain can resolve
@@ -52,7 +60,7 @@ project bar of user foo.
 mulle-domain list
 ```
 
-List known domains. Currently, that's **gihub**, **gitlab** and **sh** (sh.rt)
+List known domains.
 
 
 ### nameguess
@@ -71,8 +79,8 @@ Given an URL guess the proper name of the project. In this case it would be
 mulle-domain parse-url https://github.com/mulle-c/mulle-c11.git
 ```
 
-Breaks an URL apart into the constituent parts of interest for dependency URLs.
-
+Breaks an URL apart into the constituent parts of interest for a mulle-sde
+dependency.
 
 
 ### tag-aliases
@@ -81,7 +89,7 @@ Breaks an URL apart into the constituent parts of interest for dependency URLs.
 mulle-domain tag-aliases https://github.com/mulle-c/mulle-c11.git latest
 ```
 
-Find tags that reference the same commit. By default will only list
+Find tags that reference the same commit. By default, it will only list
 semantic version (semver) compatible tags.
 
 
@@ -90,7 +98,7 @@ semantic version (semver) compatible tags.
 ```
 mulle-domain tags https://github.com/mulle-c/mulle-c11.git
 ```
-List available tags. By default will only list semantic version (semver)
+List available tags. By default, it will only list semantic version (semver)
 compatible tags.
 
 
@@ -100,7 +108,7 @@ compatible tags.
 mulle-domain tags-for-commit https://github.com/mulle-c/mulle-c11.git e8dfhf
 ```
 
-List all tags for a given the commit identifier. By default will only list
+List all tags for a given the commit identifier. By default, it will only list
 semantic version (semver) compatible tags. The commit identifier can not
 be shortened.
 
@@ -113,14 +121,15 @@ mulle-domain tags-with-commits https://github.com/mulle-c/mulle-c11.git e8dfhf
 
 Lists all tags with the corresponding
 
+
 ### typeguess
 
 ```
 mulle-domain typeguess https://github.com/mulle-c/mulle-c11.git
 ```
 
-Given an URL guess the source code management (scm) form employed. Ususally
-thats `git` or `tar`.
+Given an URL guess the source code management (scm) employed. Ususally the
+result will be `git` or `tar`. But it can also be `zip` or `svn`.
 
 
 ## Install
