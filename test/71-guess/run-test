@@ -57,17 +57,21 @@ run_test1()
    expect_output "${result}" "foo"
    log_verbose "----- #6 PASSED -----"
 
-   result="`run_mulle_domain nameguess -s tar https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz`"
-   expect_output "${result}" "mulle-c11"
+   result="`run_mulle_domain nameguess -s tar https://www.mulle-kybernetik.com/foo-1.2.1.tar.gz`"
+   expect_output "${result}" "foo"
    log_verbose "----- #7 PASSED -----"
 
-   result="`run_mulle_domain nameguess -s zip https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
+   result="`run_mulle_domain nameguess -s tar https://github.com/mulle-nat/mulle-c11/archive/1.3.5.tar.gz`"
    expect_output "${result}" "mulle-c11"
    log_verbose "----- #8 PASSED -----"
 
+   result="`run_mulle_domain nameguess -s zip https://github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
+   expect_output "${result}" "mulle-c11"
+   log_verbose "----- #9 PASSED -----"
+
    result="`run_mulle_domain nameguess -s symlink /github.com/mulle-nat/mulle-c11/archive/1.3.5.zip`"
    expect_output "${result}" "1.3.5.zip"
-   log_verbose "----- #9 PASSED -----"
+   log_verbose "----- #10 PASSED -----"
 
 }
 

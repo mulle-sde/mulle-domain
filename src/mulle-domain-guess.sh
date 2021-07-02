@@ -40,7 +40,7 @@ domain_nameguess_usage()
 
    cat <<EOF >&2
 Usage:
-   ${MULLE_EXECUTABLE_NAME} nameguess <url>
+   ${MULLE_EXECUTABLE_NAME} nameguess [options] <url>
 
    Guess the resulting name of the project specified by the URL.
 

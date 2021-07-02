@@ -65,8 +65,6 @@ _domain_generic_parse_archive_url()
    local s="$1"
 
    local filename
-   local owner
-   local version
    local rest
 
    filename="${s##*/}"   # checkout rest
@@ -81,11 +79,12 @@ _domain_generic_parse_archive_url()
 
       *)
          s="${s%/${filename}}"
+         rest="${s}"
       ;;
    esac
 
    _user=
-   case "${s}" in 
+   case "${s}" in
       */*)
          _user="${s%%/*}"     # get user
          s="${s#${_user}/}"   # dial up to repo
@@ -93,9 +92,12 @@ _domain_generic_parse_archive_url()
    esac
 
    _repo="${s%%/*}"
-   s="${s#${_repo}/}"   # checkout rest
+   s="${s#${_repo}/}"          # checkout rest
 
    _tag=
+
+   local version
+
    # pick up version as the last component before filename ?
    version="${rest##*/}"
    if version_string_could_be_a_version "${version}"
@@ -111,26 +113,46 @@ _domain_generic_parse_archive_url()
          if version_string_could_be_a_version "${version}"
          then
             _tag="${version}"
-            return
          fi
+         return
       ;;
    esac
 
-   # so lets see, if we can finagle a version from the
-   # filename
+   local repo
 
-   if [ ! -z "${_repo}" ]
+   repo=${_repo}
+
+   if [ "${_repo}" = "${filename}" ]
    then
-      version="${filename%%.*}"       # remove all extensions
-      version="${version#${_repo}}"
-      version="${version##[-_.]}"    # remove some common delimeters fore
-      version="${version%%[-_.]}"    # and after
+      #
+      # try to figure out https://xxx.com/bar-1.2.3.tar
+      # as repo:bar and tag 1.2.3 (for sports ?)
+      #
+      _repo="${filename%%.[A-Za-z]*}" # remove all extensions
+      case "${_repo}" in
+         *[_-][0-9]*)
 
-      # if it looks reasonably like a version, take it
-      if version_string_could_be_a_version "${version}"
+            repo="${_repo%[_-][0-9]*}"
+            version="${_repo#${repo}[_-]}"
+         ;;
+      esac
+   else
+      # so lets see, if we can finagle a version from the
+      # filename
+      if [ ! -z "${_repo}" ]
       then
-         _tag="${version}"
+         version="${filename%%.[A-Za-z]*}" # remove all non numeric extensions
+         version="${version#${_repo}}"
+         version="${version##[-_.]}"    # remove some common delimeters fore
+         version="${version%%[-_.]}"    # and after
       fi
+   fi
+
+   # if it looks reasonably like a version, take it
+   if version_string_could_be_a_version "${version}"
+   then
+      _tag="${version}"
+      _repo="${repo}"
    fi
 }
 
@@ -140,7 +162,7 @@ _domain_generic_parse_repository_url()
    local s="$1"
 
    _user=
-   case "${s}" in 
+   case "${s}" in
       */*)
          _user="${s%%/*}"     # get user
          s="${s#${_user}/}"   # dial up to repo
@@ -248,7 +270,7 @@ r_domain_generic_compose_url()
    then
       opt_user="${user}/"
    fi
-   
+
    repo="${repo%.git}"
    # could use API to get the URL, but laziness...
    case "${scm}" in

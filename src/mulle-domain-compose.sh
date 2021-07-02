@@ -62,6 +62,7 @@ Options:
    --scm <name>       : specify an SCM like tar, zip, git (tar)
    --tag <tag>        : specify a version tag (latest)
    --user <user>      : specify the owner, may be required
+   -                  : read output from parse and transform into options
 
 Domains:
 EOF
@@ -206,6 +207,17 @@ domain_compose_url_main()
             shift
 
             OPTION_USER="$1"
+         ;;
+
+         -)
+            text=`sed -e 's/^user=/OPTION_USER=/' \
+                      -e 's/^repo=/OPTION_REPO=/' \
+                      -e 's/^tag=/OPTION_TAG=/' \
+                      -e 's/^branch=/OPTION_BRANCH=/' \
+                      -e 's/^scm=/OPTION_SCM=/' \
+                      -e 's/^scheme=/OPTION_SCHEME=/' \
+                      -e 's/^host=/OPTION_HOST=/' ` || exit 1
+            eval "$text"
          ;;
 
          -*)

@@ -28,23 +28,23 @@ expect_output()
 run_test1()
 {
    result="`run_mulle_domain parse https://github.com/mulle-c/mulle-c11.git`"
-   expect_output "${result}" "scheme='https'
-domain='github'
-scm='git'
-user='mulle-c'
-repo='mulle-c11'
+   expect_output "${result}" "scheme=https
+domain=github
+scm=git
+user=mulle-c
+repo=mulle-c11
 branch=''
 tag=''"
    log_verbose "----- #1 PASSED -----"
 
    result="`run_mulle_domain parse https://github.com/mulle-nat/mulle-xcode-to-cmake/archive/0.9.0.tar.gz`"
-   expect_output "${result}" "scheme='https'
-domain='github'
-scm='tar'
-user='mulle-nat'
-repo='mulle-xcode-to-cmake'
+   expect_output "${result}" "scheme=https
+domain=github
+scm=tar
+user=mulle-nat
+repo=mulle-xcode-to-cmake
 branch=''
-tag='0.9.0'"
+tag=0.9.0"
    log_verbose "----- #2 PASSED -----"
 }
 
