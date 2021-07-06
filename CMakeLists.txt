@@ -36,12 +36,7 @@ file( GLOB LIBRARY_SCRIPTS
 
 
 file( GLOB SCM_PLUGIN_SCRIPTS
-   "src/plugins/scm/*.sh"
-)
-
-
-file( GLOB DOMAIN_PLUGIN_SCRIPTS
-   "src/plugins/domain/*.sh"
+   "src/plugins/*.sh"
 )
 
 
@@ -66,14 +61,7 @@ INSTALL( FILES ${SCM_PLUGIN_SCRIPTS}
 PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             GROUP_EXECUTE GROUP_READ
             WORLD_EXECUTE WORLD_READ
-DESTINATION "libexec/mulle-domain/plugins/scm")
-
-INSTALL( FILES ${DOMAIN_PLUGIN_SCRIPTS}
-PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-            GROUP_EXECUTE GROUP_READ
-            WORLD_EXECUTE WORLD_READ
-DESTINATION "libexec/mulle-domain/plugins/domain")
-
+DESTINATION "libexec/mulle-domain/plugins")
 
 ######
 #
