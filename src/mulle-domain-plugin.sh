@@ -53,7 +53,6 @@ EOF
 }
 
 
-
 domain_plugin_load_if_present()
 {
    log_entry "domain_plugin_load_if_present" "$@"

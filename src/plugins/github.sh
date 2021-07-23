@@ -39,7 +39,7 @@ github_curl_json()
 
    local cmdline
 
-   cmdline="'${CURL}'"
+   cmdline="'${CURL:-curl}'"
    if [ "${MULLE_FLAG_LOG_VERBOSE}" = 'YES' ]
    then
       cmdline="${cmdline} -fSL"

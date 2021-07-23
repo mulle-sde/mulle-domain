@@ -12,7 +12,7 @@ set( CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set( CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set( CPACK_PACKAGE_CONTACT "Nat! <nat@mulle-kybernetik.de>")
 set( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
-set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "🏃🏿 Download and unpack source repositories or archives")
+set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "🏰 URL composition/parsing and tag resolution for repositories")
 set( CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set( CPACK_STRIP_FILES false)
 
@@ -21,7 +21,7 @@ set( CPACK_STRIP_FILES false)
 #
 # CPackDeb doesn't produce 100% proper debian file unfortunately
 #
-set( CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/mulle-nat/${PROJECT_NAME}")
+set( CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/mulle-sde/${PROJECT_NAME}")
 
 # cmake is not strictly required
 set( CPACK_DEBIAN_PACKAGE_DEPENDS "mulle-bashfunctions")
