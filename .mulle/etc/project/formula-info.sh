@@ -7,9 +7,8 @@ DESC="🏰 URL management and tag resolution for repositories"
 LANGUAGE="bash"                # c,cpp, objc, bash ...
 # NAME="${PROJECT}"        # formula filename without .rb extension
 
-DEPENDENCIES='${MULLE_NAT_TAP}mulle-bashfunctions
-${MULLE_SDE_TAP}mulle-semver'
+DEPENDENCIES='${MULLE_SDE_TAP}mulle-semver'
 
 #
-DEBIAN_DEPENDENCIES="mulle-bashfunctions (>= 3.1.0)"
-DEBIAN_RECOMMENDATIONS="tar, unzip"
+DEBIAN_DEPENDENCIES="mulle-semver"
+DEBIAN_RECOMMENDATIONS="curl"

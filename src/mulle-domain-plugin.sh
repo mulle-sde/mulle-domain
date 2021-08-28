@@ -66,7 +66,16 @@ domain_plugin_load_if_present()
    r_uppercase "${name}"
    variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-   if [ ! -z "${!variable}" ]
+   local value
+
+   if [ ! -z "${ZSH_VERSION}" ]
+   then
+      value="${(P)variable}"
+   else
+      value="${!variable}"
+   fi
+
+   if [ ! -z "${value}" ]
    then
       return 0
    fi
@@ -139,6 +148,7 @@ domain_plugin_load_all()
 
    local variable
    local pluginpath
+   local value
 
    IFS=$'\n'
    for pluginpath in `ls -1 "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins"/*.sh`
@@ -150,7 +160,13 @@ domain_plugin_load_all()
       r_uppercase "${RVAL}"
       variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-      if [ ! -z "${!variable}" ]
+      if [ ! -z "${ZSH_VERSION}" ]
+      then
+         value="${(P)variable}"
+      else
+         value="${!variable}"
+      fi
+      if [ ! -z "${value}" ]
       then
          continue
       fi
@@ -200,7 +216,7 @@ domain_call_plugin_function()
 
    domain_load_plugin_if_needed "${domain}" || return 127
 
-   if [ "`type -t "${callback}"`" != "function" ]
+   if ! shell_is_function "${callback}"
    then
       internal_fail "Domain plugin \"${domain}\" has no \"${callback}\" function"
       return 126

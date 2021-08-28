@@ -55,7 +55,7 @@ EOF
 }
 
 
-print_option_usage()
+print_option2_usage()
 {
    cat <<EOF >&2
 Options:
@@ -418,16 +418,16 @@ domain_find_exact_match_tag()
 
    local version
 
-   IFS=$'\n'; set -f
+   IFS=$'\n'; shell_disable_glob
    for version in ${versions}
    do
       if [ "${version}" = "${tag}" ]
       then
-         IFS="${DEFAULT_IFS}";  set +f
+         IFS="${DEFAULT_IFS}";  shell_enable_glob
          return 0
       fi
    done
-   IFS="${DEFAULT_IFS}";  set +f
+   IFS="${DEFAULT_IFS}";  shell_enable_glob
    return 2
 }
 
@@ -458,14 +458,15 @@ r_domain_filter_semver_tags()
 
    local memo
 
-   shopt -q extglob
+   shell_is_extglob_enabled
    memo=$?
-   shopt -s extglob
+
+   [ "${memo}" -ne 0 ] && shell_enable_extglob
 
    r_semver_parse_versions "${tags}" 'YES' 'YES'
    r_semver_parsed_versions_decriptions "${RVAL}"
 
-   [ "${memo}" -ne 0 ] && shopt -u extglob
+   [ "${memo}" -ne 0 ] && shell_disable_extglob
 }
 
 
@@ -480,9 +481,10 @@ r_domain_filter_semver_tags_and_commits()
 
    local memo
 
-   shopt -q extglob
+   shell_is_extglob_enabled
    memo=$?
-   shopt -s extglob
+
+   [ "${memo}" -ne 0 ] && shell_enable_extglob
 
    local result
    local tag
@@ -518,7 +520,7 @@ r_domain_filter_semver_tags_and_commits()
    done <<< "${text}"
    IFS="${DEFAULT_IFS}"
 
-   [ "${memo}" -ne 0 ] && shopt -u extglob
+   [ "${memo}" -ne 0 ] && shell_disable_extglob
 
    RVAL="${result}"
 }
@@ -921,15 +923,15 @@ domain_tags_main()
 
       local memo
 
-      shopt -q extglob
+      shell_is_extglob_enabled
       memo=$?
-      shopt -s extglob
+      shell_enable_extglob
 
       r_semver_parse_versions "${versions}" 'YES' 'YES'
       r_semver_parsed_versions_decriptions "${RVAL}"
       versions="${RVAL}"
 
-      [ "${memo}" -ne 0 ] && shopt -u extglob
+      [ "${memo}" -ne 0 ] && shell_disable_extglob
    fi
 
    if [ -z "${versions}" ]

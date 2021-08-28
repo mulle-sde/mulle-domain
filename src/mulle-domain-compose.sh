@@ -144,7 +144,7 @@ domain_compose_url_main()
    local OPTION_DOMAIN
    local OPTION_TAG
    local OPTION_HOST
-   local OPTION_SCM="tar"
+   local OPTION_SCM
 
    while [ $# -ne 0 ]
    do
@@ -210,7 +210,8 @@ domain_compose_url_main()
          ;;
 
          -)
-            text=`sed -e 's/^user=/OPTION_USER=/' \
+            text=`sed -e 's/^domain=/OPTION_DOMAIN=/' \
+                      -e 's/^user=/OPTION_USER=/' \
                       -e 's/^repo=/OPTION_REPO=/' \
                       -e 's/^tag=/OPTION_TAG=/' \
                       -e 's/^branch=/OPTION_BRANCH=/' \
@@ -244,6 +245,20 @@ domain_compose_url_main()
 
       domain="$1"
       shift
+   fi
+
+   if [ -z "${OPTION_SCM}" ]
+   then
+      case "${OPTION_USER}" in 
+         mulle*|Mulle*)
+            OPTION_SCM="tar"
+            OPTION_TAG="${OPTION_TAG:-latest}"
+         ;;
+
+         ""|*)
+            OPTION_SCM="git"
+         ;;
+      esac
    fi
 
    if ! r_domain_compose_url "${domain}" \

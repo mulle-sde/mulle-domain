@@ -93,20 +93,12 @@ r_resolve_semver_qualifier_to_tag()
    r_domain_lazy_url_tags "${url}" "${domain}" "${versions}"
    rval=$?
    [ $rval -ne 0 ] && return $rval
+
    versions="${RVAL}"
 
-   local extglob_memo
-
-   shopt -q extglob
-   extglob_memo=$?
-   shopt -s extglob
-
+   shell_is_extglob_enabled || internal_fail "extglob must be enabled"
    # YES=quiet
    r_semver_search "${qualifier}" "YES" "YES" "${versions}"
-   rval=$?
-
-   [ "${extglob_memo}" -ne 0 ] && shopt -u extglob
-   return $rval
 }
 
 
@@ -127,7 +119,6 @@ r_resolve_exact_match_tag()
    fi
    return 2
 }
-
 
 
 r_domain_resolve_qualifier_to_tag()
@@ -153,80 +144,133 @@ r_domain_resolve_qualifier_to_tag()
    r_semver_sanitized_qualifier "${qualifier}"
    qualifier="${RVAL}"
 
-   local extglob_memo
+   shell_is_extglob_enabled || internal_fail "extglob must be enabled"
 
-   shopt -q extglob
-   extglob_memo=$?
-   shopt -s extglob
+   local qualifier_type 
+
+   _semver_qualifier_type "${qualifier}"
+   qualifier_type=$?
+
+   r_semver_qualifier_type_description $qualifier_type
+   log_debug "Qualifier type: $RVAL"
 
    local rval
 
    rval=0
-   RVAL=
-
-   _semver_qualifier_type "${qualifier}"
-   rval=$?
-
-   r_semver_qualifier_type_description $rval
-   log_debug "Qualifier type: $RVAL"
-
-   case $rval in
-      ${semver_empty_qualifier})
-         # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag "${url}" \
-                                                "${domain}" \
-                                                "*" \
-                                                "${versions}"
-         then
-            rval=2
-         fi
-      ;;
-
-      ${semver_no_qualifier})
-         # could be a tag, but definitely not a semver qualifier
-         RVAL="${qualifier}"
-         if [ "${resolve_single_tag}" = 'YES' ]
-         then
-            if ! r_resolve_exact_match_tag "${url}" \
-                                           "${domain}" \
-                                           "${qualifier}" \
-                                           "${versions}"
-            then
-               rval=2
-            fi
-         else
-            rval=3
-         fi
-      ;;
-
-      ${semver_semver_qualifier}|${semver_single_qualifier})
-         # we figured out the tag already
-         if [ "${resolve_single_tag}" = 'YES' ]
-         then
+   if [ ! -z "${ZSH_VERSION}" ]
+   then
+      case $qualifier_type in
+         ${~semver_empty_qualifier})
+            # need to resolve qualifier to a single tag
             if ! r_resolve_semver_qualifier_to_tag "${url}" \
                                                    "${domain}" \
-                                                   "${qualifier}" \
+                                                   "*" \
                                                    "${versions}"
             then
                rval=2
             fi
-         fi
-         RVAL="${qualifier#=}"
-      ;;
+         ;;
 
-      ${semver_multi_qualifier})
-         # need to resolve qualifier to a single tag
-         if ! r_resolve_semver_qualifier_to_tag  "${url}" \
-                                                 "${domain}" \
-                                                 "${qualifier}" \
-                                                 "${versions}"
-         then
-            rval=2
-         fi
-      ;;
-   esac
+         ${~semver_no_qualifier})
+            # could be a tag, but definitely not a semver qualifier
+            RVAL="${qualifier}"
+            if [ "${resolve_single_tag}" = 'YES' ]
+            then
+               if ! r_resolve_exact_match_tag "${url}" \
+                                              "${domain}" \
+                                              "${qualifier}" \
+                                              "${versions}"
+               then
+                  rval=2
+               fi
+            else
+               rval=3
+            fi
+         ;;
 
-   [ "${extglob_memo}" -ne 0 ] && shopt -u extglob
+         ${~semver_semver_qualifier}|${~semver_single_qualifier})
+            # we figured out the tag already
+            if [ "${resolve_single_tag}" = 'YES' ]
+            then
+               if ! r_resolve_semver_qualifier_to_tag "${url}" \
+                                                      "${domain}" \
+                                                      "${qualifier}" \
+                                                      "${versions}"
+               then
+                  rval=2
+               fi
+            fi
+            RVAL="${qualifier#=}"
+         ;;
+
+         ${~semver_multi_qualifier})
+            # need to resolve qualifier to a single tag
+            if ! r_resolve_semver_qualifier_to_tag  "${url}" \
+                                                    "${domain}" \
+                                                    "${qualifier}" \
+                                                    "${versions}"
+            then
+               rval=2
+            fi
+         ;;
+      esac
+   else
+      case $qualifier_type in
+         ${semver_empty_qualifier})
+            # need to resolve qualifier to a single tag
+            if ! r_resolve_semver_qualifier_to_tag "${url}" \
+                                                   "${domain}" \
+                                                   "*" \
+                                                   "${versions}"
+            then
+               rval=2
+            fi
+         ;;
+
+         ${semver_no_qualifier})
+            # could be a tag, but definitely not a semver qualifier
+            RVAL="${qualifier}"
+            if [ "${resolve_single_tag}" = 'YES' ]
+            then
+               if ! r_resolve_exact_match_tag "${url}" \
+                                              "${domain}" \
+                                              "${qualifier}" \
+                                              "${versions}"
+               then
+                  rval=2
+               fi
+            else
+               rval=3
+            fi
+         ;;
+
+         ${semver_semver_qualifier}|${semver_single_qualifier})
+            # we figured out the tag already
+            if [ "${resolve_single_tag}" = 'YES' ]
+            then
+               if ! r_resolve_semver_qualifier_to_tag "${url}" \
+                                                      "${domain}" \
+                                                      "${qualifier}" \
+                                                      "${versions}"
+               then
+                  rval=2
+               fi
+            fi
+            RVAL="${qualifier#=}"
+         ;;
+
+         ${semver_multi_qualifier})
+            # need to resolve qualifier to a single tag
+            if ! r_resolve_semver_qualifier_to_tag  "${url}" \
+                                                    "${domain}" \
+                                                    "${qualifier}" \
+                                                    "${versions}"
+            then
+               rval=2
+            fi
+         ;;
+      esac
+   fi
 
    return $rval
 }
@@ -300,8 +344,8 @@ domain_resolve_main()
       shift
    done
 
-   [ $# -lt 2 ] && log_error  && domain_typeguess_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain_typeguess_usage "superflous arguments \"$*\""
+   [ $# -lt 2 ] && log_error  && domain_resolve_usage "missing argument"
+   [ $# -gt 2 ] && shift 2 && domain_resolve_usage "superflous arguments \"$*\""
 
    local url="$1"
    local qualifier="$2"
@@ -364,6 +408,7 @@ domain_resolve_main()
          ;;
 
          *)
+            fail "Resolve failed ($rval)"
             return $rval
          ;;
       esac

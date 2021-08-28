@@ -50,7 +50,7 @@ main()
 {
    MULLE_DOMAIN_FLAGS="$@"
 
-   _options_mini_main "$@"
+   _options_mini_main "$@" && set -x
 
    run_test1
 

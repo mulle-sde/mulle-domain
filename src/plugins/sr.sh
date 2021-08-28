@@ -106,10 +106,10 @@ r_sr_tags_and_commits()
    maxpages="${maxpages:-${MULLE_DOMAIN_SR_MAX_PAGES}}"
    maxpages="${maxpages:-20}"
 
+   local url
+
    while [ ${page} -le ${maxpages} ]
    do
-      local url
-
       # say 1000, it don't matter
       url="https://git.sr.ht/~${user}/${repo}/refs?page=${page}"
 
