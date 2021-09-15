@@ -114,6 +114,7 @@ gitlab_tags_json()
 #
 # https://gitlab.com/fdroid/artwork.git
 # https://gitlab.com/fdroid/basebox/-/archive/0.5.1/basebox-0.5.1.zip
+# https://gitlab.com/mulle-nat/test-project/-/archive/whatevs/test-project-whatevs.tar.gz
 #
 domain_gitlab_parse_url()
 {
@@ -152,15 +153,15 @@ domain_gitlab_parse_url()
 
    case "${s}" in
       */archive/*)
-         s="${s#*/archive/}"   # checkout rest
+         s="${s#*/archive/}"   # s is now something like foo-latest.tar.gz maybe
          _tag="${s%%/*}"
          s="${s#${_tag}/}"
-
 
          r_url_remove_file_compression_extension "${s}"
          s="${RVAL}"
 
          _scm="${s##*.}"
+
          case "${_scm}" in
             'tgz')
                _scm='tar'
@@ -180,6 +181,8 @@ domain_gitlab_parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
+# https://gitlab.com/mulle-nat/test-project/-/archive/whatevs/test-project-whatevs.tar.gz
+#
 r_domain_gitlab_compose_url()
 {
    log_entry "r_domain_gitlab_compose_url" "$@"
@@ -194,6 +197,7 @@ r_domain_gitlab_compose_url()
    [ -z "${user}" ] && fail "User is required for gitlab URL"
    [ -z "${repo}" ] && fail "Repo is required for gitlab URL"
 
+
    repo="${repo%.git}"
    # could use API to get the URL, but laziness...
    case "${scm}" in
@@ -202,11 +206,11 @@ r_domain_gitlab_compose_url()
       ;;
 
       tar)
-         RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${repo}-${tag:-latest}.tar.gz"
+         RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${tag:-latest}/${repo}-${tag:-latest}.tar.gz"
       ;;
 
       zip)
-         RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${repo}-${tag:-latest}.zip"
+         RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${tag:-latest}/${repo}-${tag:-latest}.zip"
       ;;
 
       *)
