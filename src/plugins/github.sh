@@ -250,8 +250,12 @@ domain_github_parse_url()
    _repo="${s%%/*}"
    s="${s#${_repo}/}"   # checkout rest
 
+   local memo
+
+   memo="$s"
    case "${s}" in
-      archive/*)
+      releases/download/*|archive/*)
+
          s="${s##*/}"        # checkout filename
          r_url_remove_file_compression_extension "${s}"
          s="${RVAL}"
@@ -264,6 +268,11 @@ domain_github_parse_url()
          esac
 
          _tag="${s%.${_scm}}"
+         case "${memo}" in
+            releases/download/*)
+               _tag="${_tag#${_repo}-}"
+            ;;
+         esac
       ;;
 
       *)
