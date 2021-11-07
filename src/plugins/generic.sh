@@ -59,29 +59,43 @@ version_string_could_be_a_version()
 # https://generic.com/mulle-sde/mulle-domain/archive/0.45.0.tar.gz
 # https://generic.com/mulle-sde/mulle-domain/archive/
 # https://generic.com/foo.git
+# https://generic.com/downloads/foo-1.2.3.git
 #
 _domain_generic_parse_archive_url()
 {
    local s="$1"
 
    local filename
-   local rest
 
    filename="${s##*/}"   # checkout rest
 
-   case "${s}" in
-      *archive/*)
-         rest="${s#*archive/}"
-         rest="${rest%${filename}}"
-         rest="${rest%/}"
-         s="${s%archive/*}"
-      ;;
+   local subdir
+   local rest
+   local found
 
-      *)
-         s="${s%/${filename}}"
-         rest="${s}"
-      ;;
-   esac
+   for subdir in archive archives release releases download downloads
+   do
+      case "${s}" in
+         *${subdir}/*)
+            rest="${s#*${subdir}/}"
+            rest="${rest%${filename}}"
+            rest="${rest%/}"
+            s="${s%${subdir}/*}"
+            found='YES'
+         ;;
+
+         *)
+            continue
+         ;;
+      esac
+      break
+   done
+
+   if [ "${found}" != 'YES' ]
+   then
+      s="${s%/${filename}}"
+      rest="${s}"
+   fi
 
    _user=
    case "${s}" in
@@ -122,7 +136,7 @@ _domain_generic_parse_archive_url()
 
    repo=${_repo}
 
-   if [ "${_repo}" = "${filename}" ]
+   if [ -z "${_repo}" -o "${_repo}" = "${filename}" ]
    then
       #
       # try to figure out https://xxx.com/bar-1.2.3.tar
