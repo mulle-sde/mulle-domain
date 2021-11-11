@@ -287,13 +287,27 @@ domain_nameguess_main()
          fi
 
          r_url_get_path "${url}"
+         r_basename "${RVAL}"
 
-         # remove compression extensions
-         RVAL="${RVAL%.gz}"
-         RVAL="${RVAL%.xz}"
-         RVAL="${RVAL%.bz2}"
+         local before
 
-         r_extensionless_basename "${RVAL}"
+         while :
+         do
+            before="${RVAL}"
+            # remove compression extensions
+            RVAL="${RVAL%.7z}"
+            RVAL="${RVAL%.bz2}"
+            RVAL="${RVAL%.gz}"
+            RVAL="${RVAL%.tar}"
+            RVAL="${RVAL%.tgz}"
+            RVAL="${RVAL%.xz}"
+            RVAL="${RVAL%.zip}"
+
+            if [ "${before}" = "${RVAL}" ]
+            then
+               break
+            fi
+         done
       ;;
 
       *)
