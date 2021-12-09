@@ -173,6 +173,8 @@ _domain_generic_parse_archive_url()
 
 _domain_generic_parse_repository_url()
 {
+   log_entry "_domain_generic_parse_repository_url" "$@"
+   
    local s="$1"
 
    _user=

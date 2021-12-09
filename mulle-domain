@@ -104,6 +104,7 @@ print_commands()
 
    SHOWN_COMMANDS="\
    compose-url       : create an URL
+   nameguess         : guess final filename from url, (hint: specify -s <scm>)
    parse-url         : parse an URL
    resolve           : get tag that matches a semver qualifier best
    tags              : list all tags of a repository
@@ -111,7 +112,6 @@ print_commands()
    list              : list known repository domains for which a plugin exists"
 
    HIDDEN_COMMANDS="\
-   nameguess         : guess final filename from url, (hint: specify -s <scm>)
    libexec-dir       : print path to mulle-domain libexec
    typeguess         : guess plugin name suitable for url
    commit-for-tag    : given a tag get the commit identifier
@@ -158,12 +158,15 @@ _usage()
 Usage:
    ${MULLE_USAGE_NAME} [flags] <command>
 
-   Access tag information from a repository hosted on known domains
-   (e.g. "github"). Also parse and compose repository URLs.
+   Parse or compose source code repository URLs. Guesses project names from a
+   given URL. Access tag information from a repository hosted on known domains
+   (e.g. "github"). 
 
-Example:
-      mulle-domain parse-url  \\
-         https://github.com/openssl/openssl/archive/OpenSSL_1_0_2u.tar.gz
+Examples:
+   mulle-domain nameguess \\
+      https://github.com/mulle-objc/MulleObjC/archive/refs/tags/0.19.0.zip
+   mulle-domain parse-url  \\
+      https://github.com/openssl/openssl/archive/OpenSSL_1_0_2u.tar.gz
 
 EOF
 
@@ -397,6 +400,12 @@ main()
 ###
 ### INIT
 ###
+_fatal()
+{
+   echo "$0 fatal error: $*" >&2
+   exit 1
+}
+
 _init()
 {
    #
@@ -416,17 +425,15 @@ _init()
       then
          if [ -z "`command -v "${executablepath}"`" ]
          then
-            echo "Fatal Error: Could not find mulle-bashfunctions-env in PATH ($PATH) - mulle-bashfunctions not installed ?" >&2
-         else
-            echo "Fatal Error: Could not find libexec of mulle-bashfunctions-env (${PWD}})" >&2
+            _fatal "mulle-bashfunctions-env not installed"
          fi
-         exit 1
+         _fatal "Could not find libexec of mulle-bashfunctions-env"
       fi
    fi
 
       # shellcheck source=../mulle-bashfunctions/src/mulle-string.sh
-   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions.sh" "minimal" ||
-      fail "failed to load bashfunctions from ${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}"
+   . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-bashfunctions-minimal.sh" \
+   || _fatal "failed to load mulle-bashfunctions-minimal.sh from ${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}"
 
    if [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ]
    then
