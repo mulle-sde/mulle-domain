@@ -31,9 +31,9 @@
 MULLE_DOMAIN_PLUGIN_GITLAB_SH="included"
 
 
-gitlab_curl_json()
+domain::plugin::gitlab::curl_json()
 {
-   log_entry "gitlab_curl_json" "$@"
+   log_entry "domain::plugin::gitlab::curl_json" "$@"
 
    local url="$1"
 
@@ -67,9 +67,9 @@ gitlab_curl_json()
 }
 
 
-gitlab_tags_json()
+domain::plugin::gitlab::tags_json()
 {
-   log_entry "gitlab_tags_json" "$@"
+   log_entry "domain::plugin::gitlab::tags_json" "$@"
 
    local user="$1"
    local repo="$2"
@@ -98,7 +98,7 @@ gitlab_tags_json()
    # if API changes default, we are covered because we are explicit ?
    url="https://gitlab.com/api/v4/projects/${encoded_user}%2F${encoded_repo}\
 /repository/tags?order_by=updated&sort=desc"
-   gitlab_curl_json "${url}"
+   domain::plugin::gitlab::curl_json "${url}"
 }
 
 
@@ -116,9 +116,9 @@ gitlab_tags_json()
 # https://gitlab.com/fdroid/basebox/-/archive/0.5.1/basebox-0.5.1.zip
 # https://gitlab.com/mulle-nat/test-project/-/archive/whatevs/test-project-whatevs.tar.gz
 #
-domain_gitlab_parse_url()
+domain::plugin::gitlab::__parse_url()
 {
-   log_entry "domain_gitlab_parse_url" "$@"
+   log_entry "domain::plugin::gitlab::__parse_url" "$@"
 
    local url="$1"
 
@@ -183,9 +183,9 @@ domain_gitlab_parse_url()
 #
 # https://gitlab.com/mulle-nat/test-project/-/archive/whatevs/test-project-whatevs.tar.gz
 #
-r_domain_gitlab_compose_url()
+domain::plugin::gitlab::r_compose_url()
 {
-   log_entry "r_domain_gitlab_compose_url" "$@"
+   log_entry "domain::plugin::gitlab::r_compose_url" "$@"
 
    local user="$1"
    local repo="$2"
@@ -223,15 +223,15 @@ r_domain_gitlab_compose_url()
 #
 # lists tag in one line, then commit in the next
 #
-gitlab_tags_with_commits()
+domain::plugin::gitlab::tags_with_commits()
 {
-   log_entry "gitlab_tags_with_commits" "$@"
+   log_entry "domain::plugin::gitlab::tags_with_commits" "$@"
 
    local user="$1"
    local repo="$2"
 
    # assume pipefail set
-   gitlab_tags_json "${user}" "${repo}" \
+   domain::plugin::gitlab::tags_json "${user}" "${repo}" \
    | "${JQ:-jq}" '.[] | .name , .commit.id' \
    | "${SED:-sed}" 's/^"\(.*\)"$/\1/'
 }
@@ -240,7 +240,7 @@ gitlab_tags_with_commits()
 ###
 ### Init
 ###
-gitlab_initialize()
+domain::plugin::gitlab::initialize()
 {
    JQ="`command -v "jq"`"
    if [ -z "${JQ}" ]
@@ -263,15 +263,8 @@ gitlab_initialize()
       fail "sed is required to access github API"
       return $?
    fi
-
-
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
 }
 
-gitlab_initialize
+domain::plugin::gitlab::initialize
 
 :

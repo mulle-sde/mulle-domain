@@ -31,7 +31,7 @@
 MULLE_DOMAIN_PLUGIN_SH="included"
 
 
-domain_plugin_usage()
+domain::plugin::usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -53,9 +53,9 @@ EOF
 }
 
 
-domain_plugin_load_if_present()
+domain::plugin::load_if_present()
 {
-   log_entry "domain_plugin_load_if_present" "$@"
+   log_entry "domain::plugin::load_if_present" "$@"
 
    local name="$1"
 
@@ -97,24 +97,24 @@ domain_plugin_load_if_present()
 
 
 
-domain_plugin_load()
+domain::plugin::load()
 {
-   log_entry "domain_plugin_load" "$@"
+   log_entry "domain::plugin::load" "$@"
 
    local name="$1"
 
    [ -z "${name}" ] && fail "Empty domain name"
 
-   if ! domain_plugin_load_if_present "${name}"
+   if ! domain::plugin::load_if_present "${name}"
    then
       fail "Domain \"${name}\" is not supported (no plugin found)"
    fi
 }
 
 
-domain_plugin_list()
+domain::plugin::list()
 {
-   log_entry "domain_plugin_list"
+   log_entry "domain::plugin::list"
 
    local upcase
    local plugindefine
@@ -136,9 +136,9 @@ domain_plugin_list()
 
 
 
-domain_plugin_load_all()
+domain::plugin::load_all()
 {
-   log_entry "domain_plugin_load_all"
+   log_entry "domain::plugin::load_all"
 
 
    [ -z "${DEFAULT_IFS}" ] && internal_fail "DEFAULT_IFS not set"
@@ -185,9 +185,9 @@ domain_plugin_load_all()
 # bunch of functionality that interfaces the plugin API with the
 # rest of the code
 #
-domain_load_plugin_if_needed()
+domain::plugin::load_if_needed()
 {
-   log_entry "domain_load_plugin_if_needed" "$@"
+   log_entry "domain::plugin::load_if_needed" "$@"
 
    local domain="$1"
 
@@ -199,7 +199,7 @@ domain_load_plugin_if_needed()
    #
    # if unsupported just emit the URL as is
    #
-   if ! domain_plugin_load_if_present "${domain_identifier}" "domain"
+   if ! domain::plugin::load_if_present "${domain_identifier}" "domain"
    then
       log_fluff "Domain \"${domain_identifier}\" is not supported"
       return 127
@@ -207,14 +207,18 @@ domain_load_plugin_if_needed()
 }
 
 
-domain_call_plugin_function()
+domain::plugin::call_function()
 {
-   log_entry "domain_call_plugin_function" "$@"
+   log_entry "domain::plugin::call_function" "$@"
 
-   local domain="$1"; shift
-   local callback="$1"
+   local domain="$1"
+   local functionname="$2"
 
-   domain_load_plugin_if_needed "${domain}" || return 127
+   shift 2
+
+   domain::plugin::load_if_needed "${domain}" || return 127
+
+   callback="domain::plugin::${domain}::${functionname}"
 
    if ! shell_is_function "${callback}"
    then
@@ -222,29 +226,29 @@ domain_call_plugin_function()
       return 126
    fi
 
-   "$@"
+   ${callback} "$@"
 }
 
 
 #
 # PLUGIN API interface
 #
-domain_tags_with_commits()
+domain::plugin::tags_with_commits()
 {
-   log_entry "domain_tags_with_commits" "$@"
+   log_entry "domain::plugin::tags_with_commits" "$@"
 
    local domain="$1"; shift
 
    # local user="$1"
    # local repo="$2"
 
-   domain_call_plugin_function "${domain}" domain_${domain}_tags_with_commits "$@"
+   domain::plugin::call_function "${domain}" tags_with_commits "$@"
 }
 
 
-r_domain_compose_url()
+domain::plugin::r_compose_url()
 {
-   log_entry "r_domain_compose_url" "$@"
+   log_entry "domain::plugin::r_compose_url" "$@"
 
    local domain="$1"; shift
 
@@ -253,7 +257,7 @@ r_domain_compose_url()
    # local tag="$3"
    # local scm="$4"
 
-   domain_call_plugin_function  "${domain}" r_domain_${domain}_compose_url "$@"
+   domain::plugin::call_function "${domain}" r_compose_url "$@"
 }
 
 
@@ -263,31 +267,31 @@ r_domain_compose_url()
 # _tag
 # _scm
 #
-domain_parse_url()
+domain::plugin::parse_url()
 {
-   log_entry "domain_parse_url" "$@"
+   log_entry "domain::plugin::parse_url" "$@"
 
    local domain="$1"; shift
 
    # local url="$1"
 
-   domain_call_plugin_function  "${domain}" domain_${domain}_parse_url "$@"
+   domain::plugin::call_function "${domain}" __parse_url "$@"
 }
 
 
-domain_plugin_main()
+domain::plugin::main()
 {
-   log_entry "domain_plugin_main" "$@"
+   log_entry "domain::plugin::main" "$@"
 
    while [ $# -ne 0 ]
    do
       case "$1" in
          -h*|--help|help)
-            domain_plugin_usage
+            domain::plugin::usage
          ;;
 
          -*)
-            domain_plugin_usage "Unknown option \"$1\""
+            domain::plugin::usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -298,26 +302,26 @@ domain_plugin_main()
       shift
    done
 
-   [ $# -lt 1 ] && domain_plugin_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_plugin_usage "superflous arguments $*"
+   [ $# -lt 1 ] && domain::plugin::usage "missing argument"
+   [ $# -gt 1 ] && shift && domain::plugin::usage "superflous arguments $*"
 
    local cmd="$1"
    shift
 
    case "${cmd}" in
       list)
-         [ $# -ne 0 ] && domain_plugin_usage "superflous parameters"
+         [ $# -ne 0 ] && domain::plugin::usage "superflous parameters"
 
          log_info "Plugins"
-         domain_plugin_list
+         domain::plugin::list
       ;;
 
       "")
-         domain_plugin_usage
+         domain::plugin::usage
       ;;
 
       *)
-         domain_plugin_usage "Unknown command \"$1\""
+         domain::plugin::usage "Unknown command \"$1\""
       ;;
    esac
 }

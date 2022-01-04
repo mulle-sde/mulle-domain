@@ -31,9 +31,7 @@
 MULLE_DOMAIN_COMMANDS_SH="included"
 
 
-
-
-print_tip_usage()
+domain::commands::print_tip_usage()
 {
    cat <<EOF
 Tip:
@@ -45,7 +43,7 @@ EOF
 }
 
 
-print_option_usage()
+domain::commands::print_option_usage()
 {
    cat <<EOF >&2
 Options:
@@ -55,7 +53,7 @@ EOF
 }
 
 
-print_option2_usage()
+domain::commands::print_option2_usage()
 {
    cat <<EOF >&2
 Options:
@@ -66,8 +64,7 @@ EOF
 }
 
 
-
-print_environment_usage()
+domain::commands::print_environment_usage()
 {
    cat <<EOF
 Environment:
@@ -78,7 +75,7 @@ EOF
 }
 
 
-domain_tags_usage()
+domain::commands::tags_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -93,15 +90,15 @@ Example:
    ${MULLE_USAGE_NAME} tags --all https://github.com/MulleWeb/mulle-scion
 EOF
 
-   print_tip_usage >&2
-   print_option2_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option2_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
 
 
-domain_commit_for_tag_usage()
+domain::commands::commit_for_tag_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -118,16 +115,16 @@ Examples:
 
 EOF
 
-   print_tip_usage >&2
-   print_option_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
 
 
 
-domain_tag_aliases_usage()
+domain::commands::tag_aliases_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -144,16 +141,16 @@ Examples:
                            latest
 EOF
 
-   print_tip_usage >&2
-   print_option_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
 
 
 
-domain_tags_for_commit_usage()
+domain::commands::tags_for_commit_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -170,15 +167,15 @@ Examples:
                            https://github.com/mulle-c/mulle-allocator \\
                            "c0209081acf014904c7514714f6e75b6a63b0dc0"
 EOF
-   print_tip_usage >&2
-   print_option2_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option2_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
 
 
-domain_tags_with_commits_usage()
+domain::commands::tags_with_commits_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -194,16 +191,16 @@ Examples:
 
 EOF
 
-   print_tip_usage >&2
-   print_option_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
 
 
 
-domain_get_tag_aliases_usage()
+domain::commands::get_tag_aliases_usage()
 {
    cat <<EOF >&2
 Usage:
@@ -215,9 +212,9 @@ Usage:
 
 EOF
 
-   print_tip_usage >&2
-   print_option_usage >&2
-   print_environment_usage >&2
+   domain::commands::print_tip_usage >&2
+   domain::commands::print_option_usage >&2
+   domain::commands::print_environment_usage >&2
 
    exit 1
 }
@@ -232,9 +229,9 @@ EOF
 #
 # Used to find the matching numeric tag for "latest"
 #
-domain_commit_for_tag()
+domain::commands::commit_for_tag()
 {
-   log_entry "domain_commit_for_tag" "$@"
+   log_entry "domain::commands::commit_for_tag" "$@"
 
    local domain="$1"
    local user="$2"
@@ -248,14 +245,14 @@ domain_commit_for_tag()
    r_escaped_sed_pattern "${tag}"
    pattern="${RVAL}"
 
-   domain_tags_with_commits "${domain}" "${user}" "${repo}" \
+   domain::plugin::tags_with_commits "${domain}" "${user}" "${repo}" \
    | sed -n "/^${pattern}\$/{n;p}"
 }
 
 
-domain_tags_for_commit()
+domain::commands::tags_for_commit()
 {
-   log_entry "domain_tags_for_commit" "$@"
+   log_entry "domain::commands::tags_for_commit" "$@"
 
    local domain="$1"
    local user="$2"
@@ -267,7 +264,7 @@ domain_tags_for_commit()
    r_escaped_sed_pattern "${commit}"
    pattern="${RVAL}"
 
-   domain_tags_with_commits "${domain}" "${user}" "${repo}" \
+   domain::plugin::tags_with_commits "${domain}" "${user}" "${repo}" \
    | sed -n "{h;n;p;g;p}" \
    | sed -n "/^${pattern}\$/{
 n
@@ -279,9 +276,9 @@ p
 #
 # i use this often and don't want to hit the API twice so...
 #
-domain_get_tag_aliases()
+domain::commands::get_tag_aliases()
 {
-   log_entry "domain_get_tag_aliases" "$@"
+   log_entry "domain::commands::get_tag_aliases" "$@"
 
    local domain="$1"
    local user="$2"
@@ -295,7 +292,7 @@ domain_get_tag_aliases()
 
    local list
 
-   list="`domain_tags_with_commits "${domain}" "${user}" "${repo}" `" || exit 1
+   list="`domain::plugin::tags_with_commits "${domain}" "${user}" "${repo}" `" || exit 1
    commit="`sed -n "/^${tag_pattern}\$/{n;p}" <<< "${list}" `"
 
    [ -z "${commit}" ] && return 0 # no return values here
@@ -323,24 +320,24 @@ domain_get_tag_aliases()
 # local _repo
 #
 
-domain_url_tags()
+domain::commands::url_tags()
 {
-   log_entry "domain_url_tags" "$@"
+   log_entry "domain::commands::url_tags" "$@"
 
    local url="$1"
    local domain="$2"
 
    if [ -z "${domain}" ]
    then
-      r_url_get_domain_nofail "${url}"
+      domain::parse::r_url_get_domain_nofail "${url}"
       domain="${RVAL}"
    fi
 
    local _user
    local _repo
 
-   domain_parse_url "${domain}" "${url}"
-   domain_tags_with_commits "${domain}" "${_user}" "${_repo}" \
+   domain::plugin::parse_url "${domain}" "${url}"
+   domain::plugin::tags_with_commits "${domain}" "${_user}" "${_repo}" \
    |  "${SED:-sed}" -n "{
 h
 n
@@ -350,23 +347,23 @@ p
 }
 
 
-domain_url_tags_for_commit()
+domain::commands::url_tags_for_commit()
 {
-   log_entry "domain_url_tags_for_commit" "$@"
+   log_entry "domain::commands::url_tags_for_commit" "$@"
 
    local url="$1"
    local domain="$2"
 
    if [ -z "${domain}" ]
    then
-      r_url_get_domain_nofail "${url}"
+      domain::parse::r_url_get_domain_nofail "${url}"
    fi
 
    local _user
    local _repo
 
-   domain_parse_url "${domain}" "${url}"
-   domain_tags_for_commit "${domain}" "${_user}" "${_repo}"
+   domain::plugin::parse_url "${domain}" "${url}"
+   domain::commands::tags_for_commit "${domain}" "${_user}" "${_repo}"
 }
 
 
@@ -374,9 +371,9 @@ domain_url_tags_for_commit()
 ##
 ## Conveniences for above API
 ##
-r_domain_lazy_url_tags()
+domain::commands::r_lazy_url_tags()
 {
-   log_entry "r_domain_lazy_url_tags" "$@"
+   log_entry "domain::commands::r_lazy_url_tags" "$@"
 
    local url="$1"
    local domain="$2"
@@ -384,7 +381,7 @@ r_domain_lazy_url_tags()
 
    if [ -z "${versions}" ]
    then
-      RVAL="`domain_url_tags "${url}" "${domain}"`"
+      RVAL="`domain::commands::url_tags "${url}" "${domain}"`"
       [ $? -eq 1 ] && return 1
       if [ -z "${RVAL}" ]
       then
@@ -399,9 +396,9 @@ r_domain_lazy_url_tags()
 
 
 # only returns exact match 0 or not found 2 (error 1)
-domain_find_exact_match_tag()
+domain::commands::find_exact_match_tag()
 {
-   log_entry "domain_find_exact_match_tag" "$@"
+   log_entry "domain::commands::find_exact_match_tag" "$@"
 
    local url="$1"
    local domain="$2"
@@ -410,7 +407,7 @@ domain_find_exact_match_tag()
 
    local rval
 
-   r_domain_lazy_url_tags "${url}" "${domain}" "${versions}"
+   domain::commands::r_lazy_url_tags "${url}" "${domain}" "${versions}"
    rval=$?
    [ $rval -ne 0 ] && return $rval
 
@@ -434,7 +431,7 @@ domain_find_exact_match_tag()
 
 
 #### COMMANDLINE INTERFACE
-domain_include_semver_parse()
+domain::commands::include_semver_parse()
 {
    if [ -z "${MULLE_SEMVER_PARSE_SH}" ]
    then
@@ -448,13 +445,13 @@ domain_include_semver_parse()
 }
 
 
-r_domain_filter_semver_tags()
+domain::commands::r_filter_semver_tags()
 {
-   log_entry "r_domain_filter_semver_tags" "$@"
+   log_entry "domain::commands::r_filter_semver_tags" "$@"
 
    local tags="$1"
 
-   domain_include_semver_parse
+   domain::commands::include_semver_parse
 
    local memo
 
@@ -463,21 +460,21 @@ r_domain_filter_semver_tags()
 
    [ "${memo}" -ne 0 ] && shell_enable_extglob
 
-   r_semver_parse_versions "${tags}" 'YES' 'YES'
-   r_semver_parsed_versions_decriptions "${RVAL}"
+   semver::parse::parse_versions "${tags}" 'YES' 'YES'
+   semver::parse::parsed_versions_decriptions "${RVAL}"
 
    [ "${memo}" -ne 0 ] && shell_disable_extglob
 }
 
 
 
-r_domain_filter_semver_tags_and_commits()
+domain::commands::r_filter_semver_tags_and_commits()
 {
-   log_entry "r_domain_filter_semver_tags_and_commits" "$@"
+   log_entry "domain::commands::r_filter_semver_tags_and_commits" "$@"
 
    local tags="$1"
 
-   domain_include_semver_parse
+   domain::commands::include_semver_parse
 
    local memo
 
@@ -509,7 +506,7 @@ r_domain_filter_semver_tags_and_commits()
       local _minor
       local _patch
 
-      if ! semver_parse "${tag}" 'YES'
+      if ! semver::parse::parse "${tag}" 'YES'
       then
          continue
       fi
@@ -530,7 +527,7 @@ r_domain_filter_semver_tags_and_commits()
 ## CLI Interface
 ##
 
-domain_common_option_shifts()
+domain::commands::common_option_shifts()
 {
    case "$1" in
       --user)
@@ -589,7 +586,7 @@ domain_common_option_shifts()
 # local _user
 # local _repo
 #
-domain_common_url_domain_parse()
+domain::commands::common_url_domain_parse()
 {
    local url_domain="$1"
    local user="$2"
@@ -600,13 +597,13 @@ domain_common_url_domain_parse()
          log_debug "${url_domain} is a url"
 
          url="${url_domain}"
-         if ! r_url_get_domain "${url}"
+         if ! domain::parse::r_url_get_domain "${url}"
          then
             domain_domain_usage "Unparsable url"
          fi
          _domain="${RVAL}"
 
-         if ! domain_parse_url "${_domain}" "${url}"
+         if ! domain::plugin::parse_url "${_domain}" "${url}"
          then
             fail "Can't parse URL for user/repo"
          fi
@@ -646,13 +643,13 @@ domain_common_url_domain_parse()
 
 
 
-domain_tags_with_commits_main()
+domain::commands::tags_with_commits_main()
 {
-   log_entry "domain_tags_with_commits_main" "$@"
+   log_entry "domain::commands::tags_with_commits_main" "$@"
 
    while [ $# -ne 0 ]
    do
-      domain_common_option_shifts "$@"
+      domain::commands::common_option_shifts "$@"
       shifts=$?
 
       if [ $shifts -ne 0 ]
@@ -663,11 +660,11 @@ domain_tags_with_commits_main()
 
       case "$1" in
          -h*|--help|help)
-            domain_tags_with_commits_usage
+            domain::commands::tags_with_commits_usage
          ;;
 
          -*)
-            domain_tags_with_commits_usage "Unknown option \"$1\""
+            domain::commands::tags_with_commits_usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -678,8 +675,8 @@ domain_tags_with_commits_main()
       shift
    done
 
-   [ $# -eq 0 ] && domain_tags_with_commits_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_tags_with_commits_usage "superflous arguments \"$*\""
+   [ $# -eq 0 ] && domain::commands::tags_with_commits_usage "missing argument"
+   [ $# -gt 1 ] && shift && domain::commands::tags_with_commits_usage "superflous arguments \"$*\""
 
    local url_domain="$1"
 
@@ -687,7 +684,7 @@ domain_tags_with_commits_main()
    local _user
    local _repo
 
-   domain_common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
+   domain::commands::common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
 
    if [ "${OPTION_SEMVER}" = 'NO' ]
    then
@@ -697,8 +694,8 @@ domain_tags_with_commits_main()
 
    local text
 
-   text="`domain_tags_with_commits "${_domain}" "${_user}" "${_repo}" "$@" `"
-   r_domain_filter_semver_tags_and_commits "${text}"
+   text="`domain::plugin::tags_with_commits "${_domain}" "${_user}" "${_repo}" "$@" `"
+   domain::commands::r_filter_semver_tags_and_commits "${text}"
 
    [ -z "${RVAL}" ] && return 1
 
@@ -706,13 +703,13 @@ domain_tags_with_commits_main()
 }
 
 
-domain_commit_for_tag_main()
+domain::commands::commit_for_tag_main()
 {
-   log_entry "domain_commit_for_tag_main" "$@"
+   log_entry "domain::commands::commit_for_tag_main" "$@"
 
    while [ $# -ne 0 ]
    do
-      domain_common_option_shifts "$@"
+      domain::commands::common_option_shifts "$@"
       shifts=$?
 
       if [ $shifts -ne 0 ]
@@ -723,11 +720,11 @@ domain_commit_for_tag_main()
 
       case "$1" in
          -h*|--help|help)
-            domain_commit_for_tag_usage
+            domain::commands::commit_for_tag_usage
          ;;
 
          -*)
-            domain_commit_for_tag_usage "Unknown option \"$1\""
+            domain::commands::commit_for_tag_usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -738,8 +735,8 @@ domain_commit_for_tag_main()
       shift
    done
 
-   [ $# -lt 2 ] && domain_get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain_get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
 
    local url_domain="$1"
    local tag="$2"
@@ -748,21 +745,21 @@ domain_commit_for_tag_main()
    local _user
    local _repo
 
-   domain_common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
+   domain::commands::common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
 
-   domain_commit_for_tag "${_domain}" "${_user}" "${_repo}" "${tag}"
+   domain::commands::commit_for_tag "${_domain}" "${_user}" "${_repo}" "${tag}"
 }
 
 
-domain_tags_for_commit_main()
+domain::commands::tags_for_commit_main()
 {
-   log_entry "domain_tags_for_commit_main" "$@"
+   log_entry "domain::commands::tags_for_commit_main" "$@"
 
    local OPTION_SEMVER='NO'
 
    while [ $# -ne 0 ]
    do
-      domain_common_option_shifts "$@"
+      domain::commands::common_option_shifts "$@"
       shifts=$?
 
       if [ $shifts -ne 0 ]
@@ -773,7 +770,7 @@ domain_tags_for_commit_main()
 
       case "$1" in
          -h*|--help|help)
-            domain_tags_for_commit_usage
+            domain::commands::tags_for_commit_usage
          ;;
 
          --all)
@@ -781,7 +778,7 @@ domain_tags_for_commit_main()
          ;;
 
          -*)
-            domain_tags_for_commit_usage "Unknown option \"$1\""
+            domain::commands::tags_for_commit_usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -792,8 +789,8 @@ domain_tags_for_commit_main()
       shift
    done
 
-   [ $# -lt 2 ] && domain_get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain_get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
 
    local url_domain="$1"
    local commit="$2"
@@ -802,21 +799,21 @@ domain_tags_for_commit_main()
    local _user
    local _repo
 
-   domain_common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
+   domain::commands::common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
 
-   domain_tags_for_commit "${_domain}" "${_user}" "${_repo}" "${commit}"
+   domain::commands::tags_for_commit "${_domain}" "${_user}" "${_repo}" "${commit}"
 }
 
 
-domain_get_tag_aliases_main()
+domain::commands::get_tag_aliases_main()
 {
-   log_entry "domain_get_tag_aliases_main" "$@"
+   log_entry "domain::commands::get_tag_aliases_main" "$@"
 
    local OPTION_SEMVER='NO'
 
    while [ $# -ne 0 ]
    do
-      domain_common_option_shifts "$@"
+      domain::commands::common_option_shifts "$@"
       shifts=$?
 
       if [ $shifts -ne 0 ]
@@ -827,7 +824,7 @@ domain_get_tag_aliases_main()
 
       case "$1" in
          -h*|--help|help)
-            domain_get_tag_aliases_usage
+            domain::commands::get_tag_aliases_usage
          ;;
 
          --all)
@@ -835,7 +832,7 @@ domain_get_tag_aliases_main()
          ;;
 
          -*)
-            domain_get_tag_aliases_usage "Unknown option \"$1\""
+            domain::commands::get_tag_aliases_usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -846,8 +843,8 @@ domain_get_tag_aliases_main()
       shift
    done
 
-   [ $# -lt 2 ] && domain_get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain_get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
 
    local url_domain="$1"
    local tag="$2"
@@ -856,15 +853,15 @@ domain_get_tag_aliases_main()
    local _user
    local _repo
 
-   domain_common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
+   domain::commands::common_url_domain_parse "${url_domain}" "${OPTION_USER}" "${OPTION_REPO}"
 
-   domain_get_tag_aliases "${_domain}" "${_user}" "${_repo}" "${tag}"
+   domain::commands::get_tag_aliases "${_domain}" "${_user}" "${_repo}" "${tag}"
 }
 
 
-domain_tags_main()
+domain::commands::main()
 {
-   log_entry "domain_tags_main" "$@"
+   log_entry "domain::commands::main" "$@"
 
    local OPTION_SCM="tar"
    local OPTION_SEMVER='YES'
@@ -874,7 +871,7 @@ domain_tags_main()
    do
       case "$1" in
          -h*|--help|help)
-            domain_tags_usage
+            domain::commands::tags_usage
          ;;
 
          --all)
@@ -882,14 +879,14 @@ domain_tags_main()
          ;;
 
          --domain)
-            [ $# -eq 1 ] && domain_resolve_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::commands::tags_usage "Missing argument to \"$1\""
             shift
 
             OPTION_DOMAIN="$1"
          ;;
 
          -*)
-            domain_tags_usage "Unknown option \"$1\""
+            domain::commands::tags_usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -900,14 +897,14 @@ domain_tags_main()
       shift
    done
 
-   [ $# -eq 0 ] && domain_tags_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_tags_usage "superflous arguments \"$*\""
+   [ $# -eq 0 ] && domain::commands::tags_usage "missing argument"
+   [ $# -gt 1 ] && shift && domain::commands::tags_usage "superflous arguments \"$*\""
 
    local url
 
    url="$1"
 
-   versions="`domain_url_tags "${url}" "${OPTION_DOMAIN}" `"
+   versions="`domain::commands::url_tags "${url}" "${OPTION_DOMAIN}" `"
 
    if [ "${OPTION_SEMVER}" = 'YES' ]
    then
@@ -927,8 +924,8 @@ domain_tags_main()
       memo=$?
       shell_enable_extglob
 
-      r_semver_parse_versions "${versions}" 'YES' 'YES'
-      r_semver_parsed_versions_decriptions "${RVAL}"
+      semver::parse::parse_versions "${versions}" 'YES' 'YES'
+      semver::parse::parsed_versions_decriptions "${RVAL}"
       versions="${RVAL}"
 
       [ "${memo}" -ne 0 ] && shell_disable_extglob
@@ -942,7 +939,7 @@ domain_tags_main()
 }
 
 
-domain_commands_initialize()
+domain::commands::initialize()
 {
    if [ -z "$MULLE_DOMAIN_PLUGIN_SH" ]
    then
@@ -958,7 +955,7 @@ domain_commands_initialize()
    fi
 }
 
-domain_commands_initialize
+domain::commands::initialize
 
 :
 

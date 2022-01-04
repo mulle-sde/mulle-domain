@@ -32,7 +32,7 @@ MULLE_DOMAIN_COMPOSE_SH="included"
 
 
 
-domain_compose_url_usage()
+domain::compose::usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -66,7 +66,7 @@ Options:
 
 Domains:
 EOF
-   domain_plugin_list | sed 's/^/   /' >&2
+   domain::plugin::list | sed 's/^/   /' >&2
 
    exit 1
 }
@@ -74,12 +74,12 @@ EOF
 
 #
 # Use information from url if user/repo are not set. Use URL to determine
-# plugin domain. (main difference to r_domain_compose_url)
+# plugin domain. (main difference to domain::plugin::r_compose_url)
 # Used by resolve, not by compose_main.
 #
-r_domain_url_compose_url()
+domain::compose::r_compose_url()
 {
-   log_entry "r_domain_url_compose_url" "$@"
+   log_entry "domain::compose::r_compose_url" "$@"
 
    local url="$1"; shift
 
@@ -99,7 +99,7 @@ r_domain_url_compose_url()
          fail "failed to load ${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh"
    fi
 
-   r_url_get_domain "${url}"
+   domain::parse::r_url_get_domain "${url}"
    domain="${RVAL:-generic}"
 
    if [ -z "${user}" -o -z "${repo}" ]
@@ -110,7 +110,7 @@ r_domain_url_compose_url()
       local _tag
       local _scm
 
-      domain_parse_url "${domain}" "${url}" || exit 1
+      domain::plugin::parse_url "${domain}" "${url}" || exit 1
 
       user="${user:-${_user}}"
       repo="${repo:-${_repo}}"
@@ -128,14 +128,14 @@ r_domain_url_compose_url()
       log_trace2 "host   : ${host}"
    fi
 
-   r_domain_compose_url "${domain}" \
+   domain::plugin::r_compose_url "${domain}" \
                         "${user}" "${repo}" "${tag}" "${scm}" "${scheme}" "${host}"
 }
 
 
-domain_compose_url_main()
+domain::compose::main()
 {
-   log_entry "domain_compose_url_main" "$@"
+   log_entry "domain::compose::main" "$@"
 
    local OPTION_USER
    local OPTION_REPO="whatever"
@@ -150,60 +150,60 @@ domain_compose_url_main()
    do
       case "$1" in
          -h*|--help|help)
-            domain_compose_url_usage
+            domain::compose::usage
          ;;
 
          --branch)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_BRANCH="$1"
          ;;
 
          --domain)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_DOMAIN="$1"
          ;;
 
          --host)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_HOST="$1"
          ;;
 
          --repo)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_REPO="$1"
          ;;
 
          --scheme)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_SCHEME="$1"
          ;;
 
          --scm)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_SCM="$1"
          ;;
 
          --tag)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_TAG="$1"
          ;;
 
          --user)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::compose::usage "Missing argument to \"$1\""
             shift
 
             OPTION_USER="$1"
@@ -222,7 +222,7 @@ domain_compose_url_main()
          ;;
 
          -*)
-            domain_compose_url_usage "Unknown option \"$1\""
+            domain::compose::usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -237,11 +237,11 @@ domain_compose_url_main()
 
    if [ ! -z "${OPTION_DOMAIN}" ]
    then
-      [ $# -ne 0 ] && domain_compose_url_usage "Superflous arguments $*"
+      [ $# -ne 0 ] && domain::compose::usage "Superflous arguments $*"
       domain="${OPTION_DOMAIN}"
    else
-      [ $# -eq 0 ] && domain_compose_url_usage "Missing domain argument"
-      [ $# -gt 1 ] && shift && domain_compose_url_usage "Superflous arguments $*"
+      [ $# -eq 0 ] && domain::compose::usage "Missing domain argument"
+      [ $# -gt 1 ] && shift && domain::compose::usage "Superflous arguments $*"
 
       domain="$1"
       shift
@@ -261,7 +261,7 @@ domain_compose_url_main()
       esac
    fi
 
-   if ! r_domain_compose_url "${domain}" \
+   if ! domain::plugin::r_compose_url "${domain}" \
                              "${OPTION_USER}" \
                              "${OPTION_REPO}" \
                              "${OPTION_TAG}" \

@@ -32,7 +32,7 @@ MULLE_DOMAIN_RESOLVE_SH="included"
 
 
 
-domain_resolve_usage()
+domain::resolve::usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -68,7 +68,7 @@ Options:
 Domains:
 EOF
 
-   domain_plugin_list | sed 's/^/   /' >&2
+   domain::plugin::list | sed 's/^/   /' >&2
    exit 1
 }
 
@@ -79,9 +79,9 @@ EOF
 # grab tags from remote provider aka github, use qualifier to search for the
 # best matching tag
 #
-r_resolve_semver_qualifier_to_tag()
+domain::resolve::r_semver_qualifier_to_tag()
 {
-   log_entry "r_resolve_semver_qualifier_to_tag" "$@"
+   log_entry "domain::resolve::r_semver_qualifier_to_tag" "$@"
 
    local url="$1"
    local domain="$2"
@@ -90,7 +90,7 @@ r_resolve_semver_qualifier_to_tag()
 
    local rval
 
-   r_domain_lazy_url_tags "${url}" "${domain}" "${versions}"
+   domain::commands::r_lazy_url_tags "${url}" "${domain}" "${versions}"
    rval=$?
    [ $rval -ne 0 ] && return $rval
 
@@ -98,13 +98,13 @@ r_resolve_semver_qualifier_to_tag()
 
    shell_is_extglob_enabled || internal_fail "extglob must be enabled"
    # YES=quiet
-   r_semver_search "${qualifier}" "YES" "YES" "${versions}"
+   semver::search::search "${qualifier}" "YES" "YES" "${versions}"
 }
 
 
-r_resolve_exact_match_tag()
+domain::resolve::r_exact_match_tag()
 {
-   log_entry "r_resolve_exact_match_tag" "$@"
+   log_entry "domain::resolve::r_exact_match_tag" "$@"
 
    local url="$1"
    local domain="$2"
@@ -112,7 +112,7 @@ r_resolve_exact_match_tag()
    local versions="$4"
 
    RVAL=
-   if domain_find_exact_match_tag "${url}" "${domain}" "${tag}" "${versions}"
+   if domain::commands::find_exact_match_tag "${url}" "${domain}" "${tag}" "${versions}"
    then
       RVAL="${tag}"
       return 0
@@ -121,9 +121,9 @@ r_resolve_exact_match_tag()
 }
 
 
-r_domain_resolve_qualifier_to_tag()
+domain::resolve::r_qualifier_to_tag()
 {
-   log_entry "r_domain_resolve_qualifier_to_tag" "$@"
+   log_entry "domain::resolve::r_qualifier_to_tag" "$@"
 
    local url="$1"
    local domain="$2"
@@ -141,17 +141,17 @@ r_domain_resolve_qualifier_to_tag()
       . "${MULLE_SEMVER_LIBEXEC_DIR}/mulle-semver-search.sh"
    fi
 
-   r_semver_sanitized_qualifier "${qualifier}"
+   semver::qualify::sanitized_qualifier "${qualifier}"
    qualifier="${RVAL}"
 
    shell_is_extglob_enabled || internal_fail "extglob must be enabled"
 
    local qualifier_type 
 
-   _semver_qualifier_type "${qualifier}"
+   semver::qualify::_type "${qualifier}"
    qualifier_type=$?
 
-   r_semver_qualifier_type_description $qualifier_type
+   semver::qualify::r_type_description $qualifier_type
    log_debug "Qualifier type: $RVAL"
 
    local rval
@@ -162,7 +162,7 @@ r_domain_resolve_qualifier_to_tag()
       case $qualifier_type in
          ${~semver_empty_qualifier})
             # need to resolve qualifier to a single tag
-            if ! r_resolve_semver_qualifier_to_tag "${url}" \
+            if ! domain::resolve::r_semver_qualifier_to_tag "${url}" \
                                                    "${domain}" \
                                                    "*" \
                                                    "${versions}"
@@ -176,7 +176,7 @@ r_domain_resolve_qualifier_to_tag()
             RVAL="${qualifier}"
             if [ "${resolve_single_tag}" = 'YES' ]
             then
-               if ! r_resolve_exact_match_tag "${url}" \
+               if ! domain::resolve::r_exact_match_tag "${url}" \
                                               "${domain}" \
                                               "${qualifier}" \
                                               "${versions}"
@@ -192,7 +192,7 @@ r_domain_resolve_qualifier_to_tag()
             # we figured out the tag already
             if [ "${resolve_single_tag}" = 'YES' ]
             then
-               if ! r_resolve_semver_qualifier_to_tag "${url}" \
+               if ! domain::resolve::r_semver_qualifier_to_tag "${url}" \
                                                       "${domain}" \
                                                       "${qualifier}" \
                                                       "${versions}"
@@ -205,7 +205,7 @@ r_domain_resolve_qualifier_to_tag()
 
          ${~semver_multi_qualifier})
             # need to resolve qualifier to a single tag
-            if ! r_resolve_semver_qualifier_to_tag  "${url}" \
+            if ! domain::resolve::r_semver_qualifier_to_tag  "${url}" \
                                                     "${domain}" \
                                                     "${qualifier}" \
                                                     "${versions}"
@@ -218,7 +218,7 @@ r_domain_resolve_qualifier_to_tag()
       case $qualifier_type in
          ${semver_empty_qualifier})
             # need to resolve qualifier to a single tag
-            if ! r_resolve_semver_qualifier_to_tag "${url}" \
+            if ! domain::resolve::r_semver_qualifier_to_tag "${url}" \
                                                    "${domain}" \
                                                    "*" \
                                                    "${versions}"
@@ -232,7 +232,7 @@ r_domain_resolve_qualifier_to_tag()
             RVAL="${qualifier}"
             if [ "${resolve_single_tag}" = 'YES' ]
             then
-               if ! r_resolve_exact_match_tag "${url}" \
+               if ! domain::resolve::r_exact_match_tag "${url}" \
                                               "${domain}" \
                                               "${qualifier}" \
                                               "${versions}"
@@ -248,7 +248,7 @@ r_domain_resolve_qualifier_to_tag()
             # we figured out the tag already
             if [ "${resolve_single_tag}" = 'YES' ]
             then
-               if ! r_resolve_semver_qualifier_to_tag "${url}" \
+               if ! domain::resolve::r_semver_qualifier_to_tag "${url}" \
                                                       "${domain}" \
                                                       "${qualifier}" \
                                                       "${versions}"
@@ -261,7 +261,7 @@ r_domain_resolve_qualifier_to_tag()
 
          ${semver_multi_qualifier})
             # need to resolve qualifier to a single tag
-            if ! r_resolve_semver_qualifier_to_tag  "${url}" \
+            if ! domain::resolve::r_semver_qualifier_to_tag  "${url}" \
                                                     "${domain}" \
                                                     "${qualifier}" \
                                                     "${versions}"
@@ -281,9 +281,9 @@ r_domain_resolve_qualifier_to_tag()
 # 1 means don't have plugin to resolve
 # 2 means could not resolve
 #
-domain_resolve_main()
+domain::resolve::main()
 {
-   log_entry "domain_resolve_main" "$@"
+   log_entry "domain::resolve::main" "$@"
 
    local OPTION_SCM="tar"
    local OPTION_RESOLVE_SINGLE_TAG='YES'
@@ -302,11 +302,11 @@ domain_resolve_main()
    do
       case "$1" in
          -h*|--help|help)
-            domain_resolve_usage
+            domain::resolve::usage
          ;;
 
          --domain)
-            [ $# -eq 1 ] && domain_resolve_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::resolve::usage "Missing argument to \"$1\""
             shift
 
             OPTION_DOMAIN="$1"
@@ -326,14 +326,14 @@ domain_resolve_main()
          ;;
 
          --scm)
-            [ $# -eq 1 ] && domain_resolve_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::resolve::usage "Missing argument to \"$1\""
             shift
 
             OPTION_SCM="$1"
          ;;
 
          -*)
-            domain_resolve_usage "Unknown option \"$1\""
+            domain::resolve::usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -344,8 +344,8 @@ domain_resolve_main()
       shift
    done
 
-   [ $# -lt 2 ] && log_error  && domain_resolve_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain_resolve_usage "superflous arguments \"$*\""
+   [ $# -lt 2 ] && log_error  && domain::resolve::usage "missing argument"
+   [ $# -gt 2 ] && shift 2 && domain::resolve::usage "superflous arguments \"$*\""
 
    local url="$1"
    local qualifier="$2"
@@ -360,7 +360,7 @@ domain_resolve_main()
    then
       # avoid doing this twice, so do it ahead of _domain_find_exact_match_tag
       # and _r_domain_resolve_qualifier_to_tag
-      r_domain_lazy_url_tags "${url}" "${OPTION_DOMAIN}"
+      domain::commands::r_lazy_url_tags "${url}" "${OPTION_DOMAIN}"
       [ $? -eq 1 ] && return 1
       if [ -z "${RVAL}" ]
       then
@@ -368,7 +368,7 @@ domain_resolve_main()
       fi
       versions="${RVAL}"
 
-      domain_find_exact_match_tag "${url}" "${OPTION_DOMAIN}" "${qualifier}" "${versions}"
+      domain::commands::find_exact_match_tag "${url}" "${OPTION_DOMAIN}" "${qualifier}" "${versions}"
       rval=$?
 
       case ${rval} in
@@ -377,7 +377,7 @@ domain_resolve_main()
          ;;
 
          2)
-            r_domain_resolve_qualifier_to_tag "${url}" \
+            domain::resolve::r_qualifier_to_tag "${url}" \
                                               "${OPTION_DOMAIN}" \
                                               "*" \
                                               "${OPTION_RESOLVE_SINGLE_TAG}" \
@@ -393,7 +393,7 @@ domain_resolve_main()
          ;;
       esac
    else
-      r_domain_resolve_qualifier_to_tag "${url}" \
+      domain::resolve::r_qualifier_to_tag "${url}" \
                                         "${OPTION_DOMAIN}" \
                                         "${qualifier}" \
                                         "${OPTION_RESOLVE_SINGLE_TAG}"
@@ -416,7 +416,7 @@ domain_resolve_main()
 
    [ -z "${tag}" ] && internal_fail "empty tag returned"
 
-   if ! r_domain_url_compose_url "${url}" "" "" "${tag}" "${OPTION_SCM}"
+   if ! domain::compose::r_compose_url "${url}" "" "" "${tag}" "${OPTION_SCM}"
    then
       return 1
    fi
@@ -425,7 +425,7 @@ domain_resolve_main()
 }
 
 
-domain_parse_initalize()
+domain::resolve::initalize()
 {
    if [ -z "${MULLE_DOMAIN_COMANDS_SH}" ]
    then
@@ -440,6 +440,6 @@ domain_parse_initalize()
    fi
 }
 
-domain_parse_initalize
+domain::resolve::initalize
 
 :

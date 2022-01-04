@@ -33,9 +33,9 @@ MULLE_DOMAIN_PLUGIN_SR_SH="included"
 
 # totally experimental
 
-sr_curl_html()
+domain::plugin::sr::curl_html()
 {
-   log_entry "sr_curl_html" "$@"
+   log_entry "domain::plugin::sr::curl_html" "$@"
 
    local url="$1"
 
@@ -63,7 +63,7 @@ sr_curl_html()
 }
 
 
-sr_scrape()
+domain::plugin::sr::scrape()
 {
    sed -n "/<div class=\"event\">/,/\/h4>/p" <<< "${text}" \
    | egrep -v '^--$|<|style=|rel=|^ *$|*/log/*|*/archive/*' \
@@ -75,9 +75,9 @@ sr_scrape()
 # Because sr.ht does not have a public API without OAUTH, we need to scrape
 # the tags with the commit off the HTML, oh joy
 #
-r_sr_tags_and_commits()
+domain::plugin::sr::r_tags_and_commits()
 {
-   log_entry "r_sr_tags_and_commits" "$@"
+   log_entry "domain::plugin::sr::r_tags_and_commits" "$@"
 
    local user="$1"
    local repo="$2"
@@ -113,7 +113,7 @@ r_sr_tags_and_commits()
       # say 1000, it don't matter
       url="https://git.sr.ht/~${user}/${repo}/refs?page=${page}"
 
-      if ! text="`sr_curl_html "${url}" `"
+      if ! text="`domain::plugin::sr::curl_html "${url}" `"
       then
          log_error "Failed to acquire tags from sr with \"${url}\"."
          RVAL=
@@ -122,7 +122,7 @@ r_sr_tags_and_commits()
 
       # painfully scrape tags from page
 
-      text="`sr_scrape <<< "${text}" `"
+      text="`domain::plugin::sr::scrape <<< "${text}" `"
       if [ -z "${text}" ]
       then
          break
@@ -170,9 +170,9 @@ r_sr_tags_and_commits()
 # https://github.com/mulle-sde/mulle-domain/archive/0.45.0.tar.gz
 # https://github.com/mulle-sde/mulle-domain/archive/
 #
-domain_github_parse_url()
+domain::plugin::sr::__parse_url()
 {
-   log_entry "domain_github_parse_url" "$@"
+   log_entry "domain::plugin::sr::__parse_url" "$@"
 
    local url="$1"
 
@@ -242,9 +242,9 @@ domain_github_parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
-r_domain_sr_compose_url()
+domain::plugin::sr::r_compose_url()
 {
-   log_entry "r_domain_sr_compose_url" "$@"
+   log_entry "domain::plugin::sr::r_compose_url" "$@"
 
    local user="$1"
    local repo="$2"
@@ -284,9 +284,9 @@ r_domain_sr_compose_url()
 # If it doesn't anymore reverse order with sed -n "{h;n;p;g;p}".
 # If its now random, move to 'jq'
 #
-domain_sr_tags_with_commits()
+domain::plugin::sr::tags_with_commits()
 {
-   log_entry "domain_sr_tags_with_commits" "$@"
+   log_entry "domain::plugin::sr::tags_with_commits" "$@"
 
    local user="$1"
    local repo="$2"
@@ -303,7 +303,7 @@ domain_sr_tags_with_commits()
 ###
 ### Init
 ###
-sr_initialize()
+domain::plugin::sr::initialize()
 {
    CURL="${CURL:-`command -v curl`}"
    if [ -z "${CURL}" ]
@@ -325,15 +325,9 @@ sr_initialize()
       fail "egrep is required to access sr API"
       return $?
    fi
-
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
 }
 
 
-sr_initialize
+domain::plugin::sr::initialize
 
 :

@@ -34,7 +34,7 @@ MULLE_DOMAIN_GUESS_SH="included"
 
 
 
-domain_nameguess_usage()
+domain::guess::nameguess_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -57,7 +57,7 @@ EOF
 
 
 
-domain_typeguess_usage()
+domain::guess::typeguess_usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -78,9 +78,9 @@ EOF
 
 
 
-r_url_typeguess()
+domain::guess::r_url_typeguess()
 {
-   log_entry "r_url_typeguess" "$@"
+   log_entry "domain::guess::r_url_typeguess" "$@"
 
    local urlpath
    local compressed
@@ -166,13 +166,13 @@ r_url_typeguess()
 
 
 
-domain_typeguess_main()
+domain::guess::typeguess_main()
 {
    while [ $# -ne 0 ]
    do
       case "$1" in
          -h*|--help|help)
-            domain_typeguess_usage
+            domain::guess::typeguess_usage
          ;;
 
          -*)
@@ -190,8 +190,8 @@ domain_typeguess_main()
 
    local url
 
-   [ $# -eq 0 ] && log_error  && domain_typeguess_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_typeguess_usage "superflous arguments \"$*\""
+   [ $# -eq 0 ] && log_error  && domain::guess::typeguess_usage "missing argument"
+   [ $# -gt 1 ] && shift && domain::guess::typeguess_usage "superflous arguments \"$*\""
 
    url="$1"
    [ -z "${url}" ] && fail "empty url"
@@ -204,19 +204,19 @@ domain_typeguess_main()
    local _branch
    local _tag
 
-   if domain_url_parse_url "${url}" && [ ! -z "${_scm}" ]
+   if domain::parse::parse_url_domain "${url}" && [ ! -z "${_scm}" ]
    then
       printf "%s\n" "${_scm}"
       return
    fi
 
-   if domain_url_parse_url "${url}" "generic" && [ ! -z "${_scm}" ]
+   if domain::parse::parse_url_domain "${url}" "generic" && [ ! -z "${_scm}" ]
    then
       printf "%s\n" "${_scm}"
       return
    fi
 
-   if ! r_url_typeguess "${url}"
+   if ! domain::guess::r_url_typeguess "${url}"
    then
       return 1
    fi
@@ -226,9 +226,9 @@ domain_typeguess_main()
 
 
 
-domain_nameguess_main()
+domain::guess::nameguess_main()
 {
-   log_entry "domain_nameguess_main" "$@"
+   log_entry "domain::guess::nameguess_main" "$@"
 
    local OPTION_SCM
 
@@ -236,7 +236,7 @@ domain_nameguess_main()
    do
       case "$1" in
          -h*|--help|help)
-            domain_nameguess_usage
+            domain::guess::nameguess_usage
          ;;
 
          -s|--scm)
@@ -259,8 +259,8 @@ domain_nameguess_main()
       shift
    done
 
-   [ $# -eq 0 ] && log_error  && domain_nameguess_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain_nameguess_usage "superflous arguments \"$*\""
+   [ $# -eq 0 ] && log_error  && domain::guess::nameguess_usage "missing argument"
+   [ $# -gt 1 ] && shift && domain::guess::nameguess_usage "superflous arguments \"$*\""
 
    local url="$1"             # URL of the clone
 
@@ -274,13 +274,13 @@ domain_nameguess_main()
          local _branch
          local _tag
 
-         if domain_url_parse_url "${url}" && [ ! -z "${_repo}" ]
+         if domain::parse::parse_url_domain "${url}" && [ ! -z "${_repo}" ]
          then
             printf "%s\n" "${_repo}"
             return
          fi
 
-         if domain_url_parse_url "${url}" "generic" && [ ! -z "${_repo}" ]
+         if domain::parse::parse_url_domain "${url}" "generic" && [ ! -z "${_repo}" ]
          then
             printf "%s\n" "${_repo}"
             return
@@ -320,7 +320,7 @@ domain_nameguess_main()
 
 
 
-domain_guess_initalize()
+domain::guess::initalize()
 {
    if [ -z "${MULLE_DOMAIN_PARSE_SH}" ]
    then
@@ -347,6 +347,6 @@ domain_guess_initalize()
    fi
 }
 
-domain_guess_initalize
+domain::guess::initalize
 
 :

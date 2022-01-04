@@ -31,7 +31,7 @@
 MULLE_DOMAIN_PARSE_SH="included"
 
 
-domain_parse_url_usage()
+domain::parse::usage()
 {
    [ "$#" -ne 0 ] && log_error "$1"
 
@@ -67,13 +67,13 @@ Options:
 
 Domains:
 EOF
-   domain_plugin_list | sed 's/^/   /' >&2
+   domain::plugin::list | sed 's/^/   /' >&2
 
    exit 1
 }
 
 
-r_url_guess_domain()
+domain::parse::r_url_guess_domain()
 {
    local url="$1"
 
@@ -117,7 +117,7 @@ r_url_guess_domain()
 }
 
 
-r_host_get_domain()
+domain::parse::r_host_get_domain()
 {
    #
    # remove foo.bar. from foo.bar.github.com
@@ -141,7 +141,7 @@ r_host_get_domain()
 }
 
 
-r_url_get_domain()
+domain::parse::r_url_get_domain()
 {
    local url="$1"
 
@@ -150,13 +150,13 @@ r_url_get_domain()
    host="${url#*://}"
    host="${host%%/*}"
 
-   r_host_get_domain "${host}"
+   domain::parse::r_host_get_domain "${host}"
 }
 
 
-r_url_get_domain_nofail()
+domain::parse::r_url_get_domain_nofail()
 {
-   r_url_get_domain "$@"
+   domain::parse::r_url_get_domain "$@"
 
    [ -z "${RVAL}" ] && fail "Couldn't get domain from URL ${url}"
 }
@@ -170,14 +170,14 @@ r_url_get_domain_nofail()
 # _tag
 # _scm
 #
-domain_url_parse_url()
+domain::parse::parse_url_domain()
 {
-   log_entry "domain_url_parse_url" "$@"
+   log_entry "domain::parse::parse_url_domain" "$@"
 
    local url="$1"
    local domain="$2"    # allow to parse random url with github parser
 
-   r_url_get_domain "${url}"
+   domain::parse::r_url_get_domain "${url}"
    _domain="${RVAL}"
 
    local rval
@@ -185,7 +185,7 @@ domain_url_parse_url()
    domain="${domain:-${_domain}}"
    domain="${domain:-generic}"
 
-   domain_parse_url "${domain}" "${url}"
+   domain::plugin::parse_url "${domain}" "${url}"
    rval=$?
 
    if [ "${MULLE_FLAG_LOG_SETTINGS}" = 'YES' ]
@@ -203,9 +203,9 @@ domain_url_parse_url()
 }
 
 
-domain_parse_url_main()
+domain::parse::main()
 {
-   log_entry "domain_parse_url_main" "$@"
+   log_entry "domain::parse::main" "$@"
 
    local OPTION_USER
    local OPTION_PREFIX
@@ -219,7 +219,7 @@ domain_parse_url_main()
    do
       case "$1" in
          -h*|--help|help)
-            domain_parse_url_usage
+            domain::parse::usage
          ;;
 
          --guess)
@@ -231,35 +231,35 @@ domain_parse_url_main()
          ;;
 
          --domain)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::parse::usage "Missing argument to \"$1\""
             shift
 
             OPTION_DOMAIN="$1"
          ;;
 
          --prefix)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::parse::usage "Missing argument to \"$1\""
             shift
 
             OPTION_PREFIX="$1"
          ;;
 
          --no-fallback)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::parse::usage "Missing argument to \"$1\""
             shift
 
             OPTION_FALLBACK_DOMAIN=""
          ;;
 
          --fallback-domain)
-            [ $# -eq 1 ] && domain_compose_url_usage "Missing argument to \"$1\""
+            [ $# -eq 1 ] && domain::parse::usage "Missing argument to \"$1\""
             shift
 
             OPTION_FALLBACK_DOMAIN="$1"
          ;;
 
          -*)
-            domain_parse_url_usage "Unknown option \"$1\""
+            domain::parse::usage "Unknown option \"$1\""
          ;;
 
          *)
@@ -270,8 +270,8 @@ domain_parse_url_main()
       shift
    done
 
-   [ $# -lt 1 ] && domain_parse_url_usage "missing arguments"
-   [ $# -gt 1 ] && shift && domain_parse_url_usage "superflous arguments $*"
+   [ $# -lt 1 ] && domain::parse::usage "missing arguments"
+   [ $# -gt 1 ] && shift && domain::parse::usage "superflous arguments $*"
 
    local url="$1"
 
@@ -297,7 +297,7 @@ domain_parse_url_main()
    then
       if [ "${OPTION_GUESS}" = 'YES' ]
       then
-         if r_url_guess_domain "${url}"
+         if domain::parse::r_url_guess_domain "${url}"
          then
             domain="${RVAL}"
             log_verbose "Guessed domain is \"${RVAL}\""
@@ -306,13 +306,13 @@ domain_parse_url_main()
 
       if [ -z "${domain}" ]
       then
-         r_url_get_domain "${url}"
+         domain::parse::r_url_get_domain "${url}"
          domain="${RVAL}"
          log_verbose "Derived domain as \"${domain}\""
       fi
    fi
 
-   if [ -z "${domain}" ] || ! domain_load_plugin_if_needed "${domain}"
+   if [ -z "${domain}" ] || ! domain::plugin::load_if_needed "${domain}"
    then
       if [ -z "${OPTION_FALLBACK_DOMAIN}" ]
       then
@@ -326,13 +326,13 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
    #
    # make these only warnings, so we can turn them off in scripts
    #
-   if ! domain_load_plugin_if_needed "${domain}"
+   if ! domain::plugin::load_if_needed "${domain}"
    then
       log_warning "Can't parse unkown domain \"${domain}\""
       return 1
    fi
 
-   if ! domain_url_parse_url "${url}" "${domain}"
+   if ! domain::parse::parse_url_domain "${url}" "${domain}"
    then
       log_warning "Could not parse URL for domain \"${domain}\""
       return 1
@@ -367,7 +367,7 @@ EOF
 }
 
 
-domain_parse_initalize()
+domain::parse::initalize()
 {
    if [ -z "${MULLE_DOMAIN_PLUGIN_SH}" ]
    then
@@ -376,6 +376,6 @@ domain_parse_initalize()
    fi
 }
 
-domain_parse_initalize
+domain::parse::initalize
 
 :

@@ -31,9 +31,9 @@
 MULLE_DOMAIN_PLUGIN_GITHUB_SH="included"
 
 
-github_curl_json()
+domain::plugin::github::curl_json()
 {
-   log_entry "github_curl_json" "$@"
+   log_entry "domain::plugin::github::curl_json" "$@"
 
    local url="$1"
 
@@ -72,7 +72,7 @@ github_curl_json()
 # prefer empty array over empty string as return value
 # two empty strings return an empty string
 #
-r_concat_json_arrays()
+domain::plugin::github::r_concat_json_arrays()
 {
    local a="$1"
    local b="$2"
@@ -109,9 +109,9 @@ r_concat_json_arrays()
 # lgrep json arrays from github. The resulting text string in RVAL is
 # actually multiple JSON arrays concatenated
 #
-r_github_tags_json()
+domain::plugin::github::r_tags_json()
 {
-   log_entry "r_github_tags_json" "$@"
+   log_entry "domain::plugin::github::r_tags_json" "$@"
 
    local user="$1"
    local repo="$2"
@@ -154,7 +154,7 @@ r_github_tags_json()
       # say 1000, it don't matter
       url="https://api.github.com/repos/${user}/${repo}/tags?per_page=${perpage}&page=${page}"
 
-      if ! text="`github_curl_json "${url}" `"
+      if ! text="`domain::plugin::github::curl_json "${url}" `"
       then
          log_warning "Failed to fetch tags from github with \"${url}\".
 ${C_VERBOSE}Tip: Happens on github if you run into hourly limits.
@@ -170,7 +170,7 @@ Or maybe there are no tags (or no repo even :))."
       #    break
       # fi
 
-      r_concat_json_arrays "${result}" "${text}"
+      domain::plugin::github::r_concat_json_arrays "${result}" "${text}"
       result="${RVAL}"
 
       # assume it's an array of dictionaries, count opening '{'. A dict value
@@ -208,9 +208,9 @@ Or maybe there are no tags (or no repo even :))."
 # https://github.com/mulle-sde/mulle-domain/archive/0.45.0.tar.gz
 # https://github.com/mulle-sde/mulle-domain/archive/
 #
-domain_github_parse_url()
+domain::plugin::github::__parse_url()
 {
-   log_entry "domain_github_parse_url" "$@"
+   log_entry "domain::plugin::github::__parse_url" "$@"
 
    local url="$1"
 
@@ -290,9 +290,9 @@ domain_github_parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
-r_domain_github_compose_url()
+domain::plugin::github::r_compose_url()
 {
-   log_entry "r_domain_github_compose_url" "$@"
+   log_entry "domain::plugin::github::r_compose_url" "$@"
 
    local user="${1:-whoever}"
    local repo="$2"
@@ -332,14 +332,14 @@ r_domain_github_compose_url()
 # If it doesn't anymore reverse order with sed -n "{h;n;p;g;p}".
 # If its now random, move to 'jq'
 #
-domain_github_tags_with_commits()
+domain::plugin::github::tags_with_commits()
 {
    log_entry "github_tags_with_commits" "$@"
 
    local user="$1"
    local repo="$2"
 
-   if ! r_github_tags_json "${user}" "${repo}"
+   if ! domain::plugin::github::r_tags_json "${user}" "${repo}"
    then
       return 1
    fi
@@ -351,7 +351,7 @@ domain_github_tags_with_commits()
 ###
 ### Init
 ###
-github_initialize()
+domain::plugin::github::initialize()
 {
    CURL="${CURL:-`command -v curl`}"
    if [ -z "${CURL}" ]
@@ -373,15 +373,9 @@ github_initialize()
       fail "egrep is required to access github API"
       return $?
    fi
-
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
 }
 
 
-github_initialize
+domain::plugin::github::initialize
 
 :

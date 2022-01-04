@@ -36,7 +36,7 @@ MULLE_DOMAIN_PLUGIN_GENERIC_SH="included"
 #### PLUGIN API
 ####
 
-version_string_could_be_a_version()
+domain::plugin::generic::string_could_be_a_version()
 {
    case "${1}" in
       [vV]*[0-9_.-]*|[0-9]*[0-9_.-]*)
@@ -61,7 +61,7 @@ version_string_could_be_a_version()
 # https://generic.com/foo.git
 # https://generic.com/downloads/foo-1.2.3.git
 #
-_domain_generic_parse_archive_url()
+domain::plugin::generic::__parse_archive_url()
 {
    local s="$1"
 
@@ -114,7 +114,7 @@ _domain_generic_parse_archive_url()
 
    # pick up version as the last component before filename ?
    version="${rest##*/}"
-   if version_string_could_be_a_version "${version}"
+   if domain::plugin::generic::string_could_be_a_version "${version}"
    then
       _tag="${version}"
       return
@@ -124,7 +124,7 @@ _domain_generic_parse_archive_url()
    case "${s}" in
       */*)
          version="${s%%/*}"     # get next
-         if version_string_could_be_a_version "${version}"
+         if domain::plugin::generic::string_could_be_a_version "${version}"
          then
             _tag="${version}"
          fi
@@ -163,7 +163,7 @@ _domain_generic_parse_archive_url()
    fi
 
    # if it looks reasonably like a version, take it
-   if version_string_could_be_a_version "${version}"
+   if domain::plugin::generic::string_could_be_a_version "${version}"
    then
       _tag="${version}"
       _repo="${repo}"
@@ -171,9 +171,9 @@ _domain_generic_parse_archive_url()
 }
 
 
-_domain_generic_parse_repository_url()
+domain::plugin::generic::__parse_repository_url()
 {
-   log_entry "_domain_generic_parse_repository_url" "$@"
+   log_entry "domain::plugin::generic::__parse_repository_url" "$@"
    
    local s="$1"
 
@@ -192,9 +192,9 @@ _domain_generic_parse_repository_url()
 }
 
 
-domain_generic_parse_url()
+domain::plugin::generic::__parse_url()
 {
-   log_entry "domain_generic_parse_url" "$@"
+   log_entry "domain::plugin::generic::__parse_url" "$@"
 
    local url="$1"
 
@@ -222,13 +222,13 @@ domain_generic_parse_url()
    case "${s}" in
       *.zip)
          _scm="zip"
-         _domain_generic_parse_archive_url "${s}"
+         domain::plugin::generic::__parse_archive_url "${s}"
          return $?
       ;;
 
       *.tar|*.tgz)
          _scm="tar"
-         _domain_generic_parse_archive_url "${s}"
+         domain::plugin::generic::__parse_archive_url "${s}"
          return $?
       ;;
 
@@ -236,7 +236,7 @@ domain_generic_parse_url()
          if url_has_file_compression_extension "${s}"
          then
             _scm="tar"
-            _domain_generic_parse_archive_url "${s}"
+            domain::plugin::generic::__parse_archive_url "${s}"
             return $?
          fi
       ;;
@@ -256,7 +256,7 @@ domain_generic_parse_url()
       ;;
    esac
 
-   _domain_generic_parse_repository_url "${s}"
+   domain::plugin::generic::__parse_repository_url "${s}"
 }
 
 
@@ -265,9 +265,9 @@ domain_generic_parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
-r_domain_generic_compose_url()
+domain::plugin::generic::r_compose_url()
 {
-   log_entry "r_domain_generic_compose_url" "$@"
+   log_entry "domain::plugin::generic::r_compose_url" "$@"
 
    local user="$1"
    local repo="$2"
@@ -315,7 +315,7 @@ r_domain_generic_compose_url()
 # If it doesn't anymore reverse order with sed -n "{h;n;p;g;p}".
 # If its now random, move to 'jq'
 #
-domain_generic_tags_with_commits()
+domain::plugin::generic::tags_with_commits()
 {
    log_entry "generic_tags_with_commits" "$@"
 
@@ -324,21 +324,5 @@ domain_generic_tags_with_commits()
 
    return 1
 }
-
-
-###
-### Init
-###
-generic_initialize()
-{
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
-}
-
-
-generic_initialize
 
 :

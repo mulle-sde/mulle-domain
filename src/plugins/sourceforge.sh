@@ -46,9 +46,9 @@ MULLE_DOMAIN_PLUGIN_SOURCEFORGE_SH="included"
 # https://netcologne.dl.sourceforge.net/project/freeglut/freeglut/3.2.1/freeglut-3.2.1.tar.gz
 # MEMO: quickly hacked!. Only works for tar.gz at the moment.
 #
-domain_sourceforge_parse_url()
+domain::plugin::sourceforge::__parse_url()
 {
-   log_entry "domain_sourceforge_parse_url" "$@"
+   log_entry "domain::plugin::sourceforge::__parse_url" "$@"
 
    local url="$1"
 
@@ -122,9 +122,9 @@ domain_sourceforge_parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
-r_domain_sourceforge_compose_url()
+domain::plugin::sourceforge::r_compose_url()
 {
-   log_entry "r_domain_sourceforge_compose_url" "$@"
+   log_entry "domain::plugin::sourceforge::r_compose_url" "$@"
 
    local user="${1:-whoever}"
    local repo="$2"
@@ -155,30 +155,14 @@ r_domain_sourceforge_compose_url()
 # If it doesn't anymore reverse order with sed -n "{h;n;p;g;p}".
 # If its now random, move to 'jq'
 #
-domain_sourceforge_tags_with_commits()
+domain::plugin::sourceforge::tags_with_commits()
 {
-   log_entry "sourceforge_tags_with_commits" "$@"
+   log_entry "domain::plugin::sourceforge::tags_with_commits" "$@"
 
    local user="$1"
    local repo="$2"
 
    return 1
 }
-
-
-###
-### Init
-###
-sourceforge_initialize()
-{
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
-}
-
-
-sourceforge_initialize
 
 :
