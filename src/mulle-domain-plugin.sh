@@ -68,7 +68,7 @@ domain::plugin::load_if_present()
 
    local value
 
-   if [ ! -z "${ZSH_VERSION}" ]
+   if [ ${ZSH_VERSION+x} ]
    then
       value="${(P)variable}"
    else
@@ -121,8 +121,8 @@ domain::plugin::list()
    local pluginpath
    local name
 
-   [ -z "${DEFAULT_IFS}" ] && internal_fail "DEFAULT_IFS not set"
-   [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
+   [ -z "${DEFAULT_IFS}" ] && _internal_fail "DEFAULT_IFS not set"
+   [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && _internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
 
 
    IFS=$'\n'
@@ -141,8 +141,8 @@ domain::plugin::load_all()
    log_entry "domain::plugin::load_all"
 
 
-   [ -z "${DEFAULT_IFS}" ] && internal_fail "DEFAULT_IFS not set"
-   [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
+   [ -z "${DEFAULT_IFS}" ] && _internal_fail "DEFAULT_IFS not set"
+   [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && _internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
 
    log_fluff "Loading plugins..."
 
@@ -160,7 +160,7 @@ domain::plugin::load_all()
       r_uppercase "${RVAL}"
       variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-      if [ ! -z "${ZSH_VERSION}" ]
+      if [ ${ZSH_VERSION+x} ]
       then
          value="${(P)variable}"
       else
@@ -222,7 +222,7 @@ domain::plugin::call_function()
 
    if ! shell_is_function "${callback}"
    then
-      internal_fail "Domain plugin \"${domain}\" has no \"${callback}\" function"
+      _internal_fail "Domain plugin \"${domain}\" has no \"${callback}\" function"
       return 126
    fi
 

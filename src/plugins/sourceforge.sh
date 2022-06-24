@@ -52,7 +52,7 @@ domain::plugin::sourceforge::__parse_url()
 
    local url="$1"
 
-   [ -z "${url}" ] && internal_fail "URL is empty"
+   [ -z "${url}" ] && _internal_fail "URL is empty"
 
    local s
    local before

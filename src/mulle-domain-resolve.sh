@@ -96,7 +96,7 @@ domain::resolve::r_semver_qualifier_to_tag()
 
    versions="${RVAL}"
 
-   shell_is_extglob_enabled || internal_fail "extglob must be enabled"
+   shell_is_extglob_enabled || _internal_fail "extglob must be enabled"
    # YES=quiet
    semver::search::search "${qualifier}" "YES" "YES" "${versions}"
 }
@@ -144,7 +144,7 @@ domain::resolve::r_qualifier_to_tag()
    semver::qualify::sanitized_qualifier "${qualifier}"
    qualifier="${RVAL}"
 
-   shell_is_extglob_enabled || internal_fail "extglob must be enabled"
+   shell_is_extglob_enabled || _internal_fail "extglob must be enabled"
 
    local qualifier_type 
 
@@ -157,7 +157,7 @@ domain::resolve::r_qualifier_to_tag()
    local rval
 
    rval=0
-   if [ ! -z "${ZSH_VERSION}" ]
+   if [ ${ZSH_VERSION+x} ]
    then
       case $qualifier_type in
          ${~semver_empty_qualifier})
@@ -414,7 +414,7 @@ domain::resolve::main()
       esac
    fi
 
-   [ -z "${tag}" ] && internal_fail "empty tag returned"
+   [ -z "${tag}" ] && _internal_fail "empty tag returned"
 
    if ! domain::compose::r_compose_url "${url}" "" "" "${tag}" "${OPTION_SCM}"
    then

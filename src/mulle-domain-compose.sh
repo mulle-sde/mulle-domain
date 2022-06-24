@@ -118,14 +118,14 @@ domain::compose::r_compose_url()
 
    if [ "${MULLE_FLAG_LOG_SETTINGS}" = 'YES' ]
    then
-      log_trace2 "url    : ${url}"
-      log_trace2 "domain : ${domain}"
-      log_trace2 "user   : ${user}"
-      log_trace2 "repo   : ${repo}"
-      log_trace2 "tag    : ${tag}"
-      log_trace2 "scm    : ${scm}"
-      log_trace2 "scheme : ${scheme}"
-      log_trace2 "host   : ${host}"
+      log_setting "url    : ${url}"
+      log_setting "domain : ${domain}"
+      log_setting "user   : ${user}"
+      log_setting "repo   : ${repo}"
+      log_setting "tag    : ${tag}"
+      log_setting "scm    : ${scm}"
+      log_setting "scheme : ${scheme}"
+      log_setting "host   : ${host}"
    fi
 
    domain::plugin::r_compose_url "${domain}" \

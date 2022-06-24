@@ -118,8 +118,8 @@ domain::plugin::github::r_tags_json()
    local maxpages="$3"
    local perpage=$4
 
-   [ -z "${user}" ] && internal_fail "user is missing"
-   [ -z "${repo}" ] && internal_fail "repo is missing"
+   [ -z "${user}" ] && _internal_fail "user is missing"
+   [ -z "${repo}" ] && _internal_fail "repo is missing"
 
    # the result is paginated, means we only get 30 tags and then have to
    # parse the next url from the response header. We can raise this to 100.
@@ -156,7 +156,7 @@ domain::plugin::github::r_tags_json()
 
       if ! text="`domain::plugin::github::curl_json "${url}" `"
       then
-         log_warning "Failed to fetch tags from github with \"${url}\".
+         _log_warning "Failed to fetch tags from github with \"${url}\".
 ${C_VERBOSE}Tip: Happens on github if you run into hourly limits.
 Or maybe there are no tags (or no repo even :))."
          RVAL=
@@ -214,7 +214,7 @@ domain::plugin::github::__parse_url()
 
    local url="$1"
 
-   [ -z "${url}" ] && internal_fail "URL is empty"
+   [ -z "${url}" ] && _internal_fail "URL is empty"
 
    local s
    local before

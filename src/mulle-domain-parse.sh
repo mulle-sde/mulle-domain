@@ -188,16 +188,13 @@ domain::parse::parse_url_domain()
    domain::plugin::parse_url "${domain}" "${url}"
    rval=$?
 
-   if [ "${MULLE_FLAG_LOG_SETTINGS}" = 'YES' ]
-   then
-      log_trace2 "scheme = '${_scheme}'"
-      log_trace2 "domain = '${_domain}'"
-      log_trace2 "scm    = '${_scm}'"
-      log_trace2 "user   = '${_user}'"
-      log_trace2 "repo   = '${_repo}'"
-      log_trace2 "branch = '${_branch}'"
-      log_trace2 "tag    = '${_tag}'"
-   fi
+   log_setting "scheme = '${_scheme}'"
+   log_setting "domain = '${_domain}'"
+   log_setting "scm    = '${_scm}'"
+   log_setting "user   = '${_user}'"
+   log_setting "repo   = '${_repo}'"
+   log_setting "branch = '${_branch}'"
+   log_setting "tag    = '${_tag}'"
 
    return $rval
 }

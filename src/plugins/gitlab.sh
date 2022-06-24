@@ -75,8 +75,8 @@ domain::plugin::gitlab::tags_json()
    local repo="$2"
 
 
-   [ -z "${user}" ] && internal_fail "user is missing"
-   [ -z "${repo}" ] && internal_fail "repo is missing"
+   [ -z "${user}" ] && _internal_fail "user is missing"
+   [ -z "${repo}" ] && _internal_fail "repo is missing"
 
    if [ -z "${MULLE_DOMAIN_CURL_SH}" ]
    then
@@ -122,7 +122,7 @@ domain::plugin::gitlab::__parse_url()
 
    local url="$1"
 
-   [ -z "${url}" ] && internal_fail "URL is empty"
+   [ -z "${url}" ] && _internal_fail "URL is empty"
 
    local s
 

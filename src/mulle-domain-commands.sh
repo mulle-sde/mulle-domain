@@ -238,7 +238,7 @@ domain::commands::commit_for_tag()
    local repo="$3"
    local tag="$4"
 
-   [ -z "${tag}" ] && internal_fail "tag is missing"
+   [ -z "${tag}" ] && _internal_fail "tag is missing"
 
    local pattern
 
