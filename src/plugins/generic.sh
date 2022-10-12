@@ -171,6 +171,15 @@ domain::plugin::generic::__parse_archive_url()
 }
 
 
+domain::plugin::generic::__parse_file_url()
+{
+   log_entry "domain::plugin::generic::__parse_file_url" "$@"
+
+   _repo="$1"
+}
+
+
+
 domain::plugin::generic::__parse_repository_url()
 {
    log_entry "domain::plugin::generic::__parse_repository_url" "$@"
@@ -239,6 +248,13 @@ domain::plugin::generic::__parse_url()
             domain::plugin::generic::__parse_archive_url "${s}"
             return $?
          fi
+      ;;
+
+      # html/css ? hmm... that's probably a bug
+      *.dat|*.txt|*.md|*.css|*.html|*.c|*.m|*.aam|*.cpp|*.png|*.jpg|*.tiff|*.obj|*.aiff|*.aam)
+         _scm="file"
+         domain::plugin::generic::__parse_file_url "${s}"
+         return $?
       ;;
    esac
 
