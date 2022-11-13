@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+# shellcheck shell=bash
 #
 #   Copyright (c) 2015-2018 Nat! - Mulle kybernetiK
 #   All rights reserved.
@@ -68,12 +68,8 @@ domain::plugin::load_if_present()
 
    local value
 
-   if [ ${ZSH_VERSION+x} ]
-   then
-      value="${(P)variable}"
-   else
-      value="${!variable}"
-   fi
+   r_shell_indirect_expand "${variable}"
+   value="${RVAL}"
 
    if [ ! -z "${value}" ]
    then
@@ -160,12 +156,9 @@ domain::plugin::load_all()
       r_uppercase "${RVAL}"
       variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
-      if [ ${ZSH_VERSION+x} ]
-      then
-         value="${(P)variable}"
-      else
-         value="${!variable}"
-      fi
+      r_shell_indirect_expand "${variable}"
+      value="${RVAL}"
+
       if [ ! -z "${value}" ]
       then
          continue
