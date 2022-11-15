@@ -96,7 +96,6 @@ domain::plugin::sr::r_tags_and_commits()
    local page
    local n
    local result
-   local perpage
 
    page=1
 
@@ -189,13 +188,12 @@ domain::plugin::sr::__parse_url()
    local _query
    local _fragment
 
-   url_parse "${url}"
+   __url_parse "${url}"
    if [ -z "${_host}" ]
    then
       return 2
    fi
 
-   _scheme="${_scheme%:}"
    s="${_path##/}"
    case "${s}" in
       */*)

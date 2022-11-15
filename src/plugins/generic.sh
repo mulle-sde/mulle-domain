@@ -219,13 +219,12 @@ domain::plugin::generic::__parse_url()
    local _query
    local _fragment
 
-   url_parse "${url}"
+   __url_parse "${url}"
    if [ -z "${_host}" ]
    then
       return 2
    fi
 
-   _scheme="${_scheme%:}"
    s="${_path##/}"
 
    case "${s}" in

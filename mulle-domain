@@ -105,7 +105,7 @@ EOF
 }
 
 
-domain::_usage()
+domain::do_usage()
 {
    local verbose="${1:-NO}"
 
@@ -159,7 +159,7 @@ EOF
 
 domain::usage()
 {
-   domain::_usage "$@" >&2
+   domain::do_usage "$@" >&2
    exit 1
 }
 

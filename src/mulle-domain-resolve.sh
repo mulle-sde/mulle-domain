@@ -148,7 +148,7 @@ domain::resolve::r_qualifier_to_tag()
 
    local qualifier_type 
 
-   semver::qualify::_type "${qualifier}"
+   semver::qualify::which_type "${qualifier}"
    qualifier_type=$?
 
    semver::qualify::r_type_description $qualifier_type

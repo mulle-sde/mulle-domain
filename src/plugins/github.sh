@@ -137,7 +137,6 @@ domain::plugin::github::r_tags_json()
    local page
    local n
    local result
-   local perpage
 
    page=1
 
@@ -147,10 +146,10 @@ domain::plugin::github::r_tags_json()
    maxpages="${maxpages:-${MULLE_DOMAIN_GITHUB_MAX_PAGES}}"
    maxpages="${maxpages:-20}"
 
+   local url
+
    while [ ${page} -le ${maxpages} ]
    do
-      local url
-
       # say 1000, it don't matter
       url="https://api.github.com/repos/${user}/${repo}/tags?per_page=${perpage}&page=${page}"
 
@@ -227,13 +226,12 @@ domain::plugin::github::__parse_url()
    local _query
    local _fragment
 
-   url_parse "${url}"
+   __url_parse "${url}"
    if [ -z "${_host}" ]
    then
       return 2
    fi
 
-   _scheme="${_scheme%:}"
    s="${_path##/}"
    case "${s}" in
       */*)
