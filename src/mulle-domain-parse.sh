@@ -331,7 +331,7 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
 
    if ! domain::parse::parse_url_domain "${url}" "${domain}"
    then
-      log_warning "Could not parse URL for domain \"${domain}\""
+      log_warning "Could not parse URL \"${url}\" for domain \"${domain}\""
       return 1
    fi
 

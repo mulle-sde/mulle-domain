@@ -63,7 +63,9 @@ domain::plugin::load_if_present()
 
    local variable
 
-   r_uppercase "${name}"
+   include "case"
+
+   r_smart_upcase_identifier "${name}"
    variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
    local value
@@ -121,11 +123,10 @@ domain::plugin::list()
    [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && _internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
 
 
-   IFS=$'\n'
-   for pluginpath in `ls -1 "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins/"*.sh`
-   do
+   .foreachline pluginpath in `dir_list_files "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins" "*.sh"`
+   .do
       basename -- "${pluginpath}" .sh
-   done
+   .done
 
    IFS="${DEFAULT_IFS}"
 }
@@ -146,14 +147,10 @@ domain::plugin::load_all()
    local pluginpath
    local value
 
-   IFS=$'\n'
-   for pluginpath in `ls -1 "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins"/*.sh`
-   do
-      IFS="${DEFAULT_IFS}"
-
+   .foreachline pluginpath in `dir_list_files "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins" "*.sh"`
+   .do
       r_extensionless_basename "${pluginpath}"
-      r_identifier "${RVAL}"
-      r_uppercase "${RVAL}"
+      r_smart_upcase_identifier "${RVAL}"
       variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
       r_shell_indirect_expand "${variable}"
@@ -161,16 +158,14 @@ domain::plugin::load_all()
 
       if [ ! -z "${value}" ]
       then
-         continue
+         .continue
       fi
 
       # shellcheck source=plugins/github.sh
       . "${pluginpath}" || exit 1
 
       eval "${variable}='included'"
-   done
-
-   IFS="${DEFAULT_IFS}"
+   .done
 }
 
 
