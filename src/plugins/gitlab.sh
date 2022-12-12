@@ -74,7 +74,6 @@ domain::plugin::gitlab::tags_json()
    local user="$1"
    local repo="$2"
 
-
    [ -z "${user}" ] && _internal_fail "user is missing"
    [ -z "${repo}" ] && _internal_fail "repo is missing"
 

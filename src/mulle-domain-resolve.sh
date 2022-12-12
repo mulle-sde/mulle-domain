@@ -350,8 +350,6 @@ domain::resolve::main()
    local url="$1"
    local qualifier="$2"
 
-   local url
-   local qualifier
    local tag
    local versions
 
@@ -427,17 +425,8 @@ domain::resolve::main()
 
 domain::resolve::initalize()
 {
-   if [ -z "${MULLE_DOMAIN_COMANDS_SH}" ]
-   then
-      # shellcheck source=mulle-domain-commands.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-commands.sh" || exit 1
-   fi
-
-   if [ -z "${MULLE_DOMAIN_COMPOSE_SH}" ]
-   then
-      # shellcheck source=mulle-domain-compose.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-compose.sh" || exit 1
-   fi
+   include "domain::commands"
+   include "domain::compose"
 }
 
 domain::resolve::initalize
