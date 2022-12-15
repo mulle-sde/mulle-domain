@@ -65,7 +65,7 @@ domain::plugin::load_if_present()
 
    include "case"
 
-   r_smart_upcase_identifier "${name}"
+   r_smart_upcase_identifier "${name}" # not file
    variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
    local value
@@ -150,7 +150,7 @@ domain::plugin::load_all()
    .foreachline pluginpath in `dir_list_files "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins" "*.sh"`
    .do
       r_extensionless_basename "${pluginpath}"
-      r_smart_upcase_identifier "${RVAL}"
+      r_smart_upcase_identifier "${RVAL}"  # not file
       variable="MULLE_DOMAIN_PLUGIN_${RVAL}_SH"
 
       r_shell_indirect_expand "${variable}"
