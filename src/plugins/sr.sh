@@ -39,6 +39,13 @@ domain::plugin::sr::curl_html()
 
    local url="$1"
 
+   CURL="${CURL:-`command -v curl`}"
+   if [ -z "${CURL}" ]
+   then
+      fail "curl is required to access sr API"
+      return $?
+   fi
+
    local cmdline
 
    cmdline="'${CURL}'"
@@ -66,7 +73,7 @@ domain::plugin::sr::curl_html()
 domain::plugin::sr::scrape()
 {
    sed -n "/<div class=\"event\">/,/\/h4>/p" <<< "${text}" \
-   | egrep -v '^--$|<|style=|rel=|^ *$|*/log/*|*/archive/*' \
+   | grep -E -v '^--$|<|style=|rel=|^ *$|*/log/*|*/archive/*' \
    | sed -e 's/.*href=.*\/tree\/\(.*\)"/\1/' -e 's/^[[:space:]]*//'
 }
 
@@ -297,35 +304,3 @@ domain::plugin::sr::tags_with_commits()
    [ ! -z "${RVAL}" ] && echo "${RVAL}"
 }
 
-
-###
-### Init
-###
-domain::plugin::sr::initialize()
-{
-   CURL="${CURL:-`command -v curl`}"
-   if [ -z "${CURL}" ]
-   then
-      fail "curl is required to access sr API"
-      return $?
-   fi
-
-   SED="${SED:-`command -v sed`}"
-   if [ -z "${SED}" ]
-   then
-      fail "sed is required to access sr API"
-      return $?
-   fi
-
-   EGREP="${EGREP:-`command -v egrep`}"
-   if [ -z "${EGREP}" ]
-   then
-      fail "egrep is required to access sr API"
-      return $?
-   fi
-}
-
-
-domain::plugin::sr::initialize
-
-:

@@ -163,5 +163,3 @@ domain::plugin::sourceforge::tags_with_commits()
 
    return 1
 }
-
-:

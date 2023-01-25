@@ -338,7 +338,7 @@ domain::commands::url_tags()
 
    domain::plugin::parse_url "${domain}" "${url}"
    domain::plugin::tags_with_commits "${domain}" "${_user}" "${_repo}" \
-   |  "${SED:-sed}" -n "{
+   | sed -n "{
 h
 n
 g

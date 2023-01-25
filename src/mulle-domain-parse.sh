@@ -82,6 +82,7 @@ domain::parse::r_url_guess_domain()
 
    uri="${url#*://}"
    host="${uri%%/*}"
+   host="${host#*@}"
 
    case "${host}" in
       *.sr.ht|sr.ht)
@@ -119,10 +120,15 @@ domain::parse::r_url_guess_domain()
 
 domain::parse::r_host_get_domain()
 {
+   local host="$1"
+
+   # remove login from host
+   host="${host#*@}"
+
    #
    # remove foo.bar. from foo.bar.github.com
    #
-   RVAL="$1"
+   RVAL="${host}"
    while :
    do
       case "${RVAL}" in
@@ -141,16 +147,23 @@ domain::parse::r_host_get_domain()
 }
 
 
-domain::parse::r_url_get_domain()
+domain::parse::r_url_get_host()
 {
    local url="$1"
 
    local host
 
    host="${url#*://}"
-   host="${host%%/*}"
+   RVAL="${host%%/*}"
+}
 
-   domain::parse::r_host_get_domain "${host}"
+
+domain::parse::r_url_get_domain()
+{
+   local url="$1"
+
+   domain::parse::r_url_get_host "${url}"
+   domain::parse::r_host_get_domain "${RVAL}"
 }
 
 
@@ -165,6 +178,7 @@ domain::parse::r_url_get_domain_nofail()
 #
 # _domain:
 # _scheme
+# _host
 # _user
 # _repo
 # _tag
@@ -177,7 +191,10 @@ domain::parse::parse_url_domain()
    local url="$1"
    local domain="$2"    # allow to parse random url with github parser
 
-   domain::parse::r_url_get_domain "${url}"
+   domain::parse::r_url_get_host "${url}"
+   _host="${RVAL}"
+
+   domain::parse::r_host_get_domain "${_host}"
    _domain="${RVAL}"
 
    local rval
@@ -190,6 +207,7 @@ domain::parse::parse_url_domain()
 
    log_setting "scheme = '${_scheme}'"
    log_setting "domain = '${_domain}'"
+   log_setting "host   = '${_host}'"
    log_setting "scm    = '${_scm}'"
    log_setting "user   = '${_user}'"
    log_setting "repo   = '${_repo}'"
@@ -273,6 +291,7 @@ domain::parse::main()
    local url="$1"
 
    local _scheme
+   local _host
    local _domain
    local _scm
    local _user
@@ -286,6 +305,9 @@ domain::parse::main()
          url="${url%##*}"
       ;;
    esac
+
+   domain::parse::r_url_get_host "${url}"
+   _host="${RVAL}"
 
    local domain
 
@@ -303,7 +325,7 @@ domain::parse::main()
 
       if [ -z "${domain}" ]
       then
-         domain::parse::r_url_get_domain "${url}"
+         domain::parse::r_host_get_domain "${_host}"
          domain="${RVAL}"
          log_verbose "Derived domain as \"${domain}\""
       fi
@@ -346,6 +368,7 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
    #
    printf -v _scheme "%q" "${_scheme}"
    printf -v _domain "%q" "${_domain}"
+   printf -v _host   "%q" "${_host}"
    printf -v _scm    "%q" "${_scm}"
    printf -v _user   "%q" "${_user}"
    printf -v _repo   "%q" "${_repo}"
@@ -355,6 +378,7 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
    cat <<EOF
 ${OPTION_PREFIX}scheme=${_scheme}
 ${OPTION_PREFIX}domain=${_domain}
+${OPTION_PREFIX}host=${_host}
 ${OPTION_PREFIX}scm=${_scm}
 ${OPTION_PREFIX}user=${_user}
 ${OPTION_PREFIX}repo=${_repo}

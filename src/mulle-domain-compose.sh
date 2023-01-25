@@ -55,7 +55,7 @@ Usage:
       https://github.com/mulle-c/mulle-allocator/archive/latest.tar.gz
 
 Options:
-   --domain <name>    : you an specify the requied domain also as an option
+   --domain <name>    : you can specify the required domain also as an option
    --host <name>      : specify a host like git.foobar.com
    --repo <repo>      : specify the reposiory required
    --scheme <scheme>  : specify a scheme (https)

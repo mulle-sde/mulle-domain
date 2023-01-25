@@ -37,9 +37,16 @@ domain::plugin::github::curl_json()
 
    local url="$1"
 
+   CURL="${CURL:-`command -v curl`}"
+   if [ -z "${CURL}" ]
+   then
+      fail "curl is required to access github API"
+      return $?
+   fi
+
    local cmdline
 
-   cmdline="'${CURL:-curl}'"
+   cmdline="'${CURL}'"
    if [ "${MULLE_FLAG_LOG_VERBOSE}" = 'YES' ]
    then
       cmdline="${cmdline} -fSL"
@@ -96,11 +103,11 @@ domain::plugin::github::r_concat_json_arrays()
 
    local c
 
-   a="`"${SED:-sed}" -e '$d' <<< "${a}" `" # remove ']'
+   a="`sed -e '$d' <<< "${a}" `" # remove ']'
    r_add_line "${a}" ","        # add ','
    c="${RVAL}"
 
-   b="`"${SED:-sed}" -e '1d' <<< "${b}" `" # remove '['
+   b="`sed -e '1d' <<< "${b}" `" # remove '['
    r_add_line "${c}" "${b}"      # add text
 }
 
@@ -174,7 +181,8 @@ Or maybe there are no tags (or no repo even :))."
 
       # assume it's an array of dictionaries, count opening '{'. A dict value
       # starts with  "key:" {  so they won't match.
-      n="`"${EGREP:-egrep}" '^\ *{$' <<< "${text}" | wc -l `"
+      # solaris wants \{
+      n="`grep -E '^[[:space:]]*\{$' <<< "${text}" | wc -l `"
       log_debug "Received ${n## } of max ${perpage} tags"
 
       if [ $n -lt ${perpage} ]
@@ -341,39 +349,7 @@ domain::plugin::github::tags_with_commits()
    then
       return 1
    fi
-   "${EGREP:-egrep}" -e '^.*"name":|^.*"sha":'  <<< "${RVAL}" \
-   | "${SED:-sed}" -e 's/^.*"[a-z]*": "\(.*\)".*$/\1/'
+   grep -E -e '^.*"name":|^.*"sha":'  <<< "${RVAL}" \
+   | sed -e 's/^.*"[a-z]*": "\(.*\)".*$/\1/'
 }
 
-
-###
-### Init
-###
-domain::plugin::github::initialize()
-{
-   CURL="${CURL:-`command -v curl`}"
-   if [ -z "${CURL}" ]
-   then
-      fail "curl is required to access github API"
-      return $?
-   fi
-
-   SED="${SED:-`command -v sed`}"
-   if [ -z "${SED}" ]
-   then
-      fail "sed is required to access github API"
-      return $?
-   fi
-
-   EGREP="${EGREP:-`command -v egrep`}"
-   if [ -z "${EGREP}" ]
-   then
-      fail "egrep is required to access github API"
-      return $?
-   fi
-}
-
-
-domain::plugin::github::initialize
-
-:

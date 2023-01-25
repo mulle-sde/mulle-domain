@@ -37,9 +37,16 @@ domain::plugin::gitlab::curl_json()
 
    local url="$1"
 
+   CURL="${CURL:-`command -v curl`}"
+   if [ -z "${CURL}" ]
+   then
+      fail "curl is required to access gitlab API"
+      return $?
+   fi
+
    local cmdline
 
-   cmdline="'${CURL:-curl}'"
+   cmdline="'${CURL}'"
    if [ "${MULLE_FLAG_LOG_VERBOSE}" = 'YES' ]
    then
       cmdline="${cmdline} -fSL"
@@ -229,18 +236,6 @@ domain::plugin::gitlab::tags_with_commits()
    local user="$1"
    local repo="$2"
 
-   # assume pipefail set
-   domain::plugin::gitlab::tags_json "${user}" "${repo}" \
-   | "${JQ:-jq}" '.[] | .name , .commit.id' \
-   | "${SED:-sed}" 's/^"\(.*\)"$/\1/'
-}
-
-
-###
-### Init
-###
-domain::plugin::gitlab::initialize()
-{
    JQ="`command -v "jq"`"
    if [ -z "${JQ}" ]
    then
@@ -248,22 +243,8 @@ domain::plugin::gitlab::initialize()
       return $?
    fi
 
-   CURL="${CURL:-`command -v curl`}"
-   if [ -z "${CURL}" ]
-   then
-      fail "curl is required to access gitlab API"
-      return $?
-   fi
-
-
-   SED="${SED:-`command -v sed`}"
-   if [ -z "${SED}" ]
-   then
-      fail "sed is required to access github API"
-      return $?
-   fi
+   # assume pipefail set
+   domain::plugin::gitlab::tags_json "${user}" "${repo}" \
+   | "${JQ}" '.[] | .name , .commit.id' \
+   | sed 's/^"\(.*\)"$/\1/'
 }
-
-domain::plugin::gitlab::initialize
-
-:
