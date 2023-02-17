@@ -55,6 +55,17 @@ repo=mulle-xcode-to-cmake
 branch=''
 tag=0.9.0"
    log_verbose "----- #2 PASSED -----"
+
+   result="`run_mulle_domain parse gitlab:mulle-nat/mulle-xcode-to-cmake`"
+   expect_output "${result}" "scheme=''
+domain=gitlab
+host=gitlab
+scm=git
+user=mulle-nat
+repo=mulle-xcode-to-cmake
+branch=''
+tag=''"
+   log_verbose "----- #3 PASSED -----"
 }
 
 

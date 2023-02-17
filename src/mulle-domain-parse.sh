@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PARSE_SH="included"
+MULLE_DOMAIN_PARSE_SH='included'
 
 
 domain::parse::usage()
@@ -47,16 +47,19 @@ Usage:
    The parse values are returned as evaluatable bash assignments:
 
    Example:
-      ${MULLE_USAGE_NAME} parse-url https://github.com/mulle-c/mulle-c11
+      local scheme domain host scm user repo branch tag
 
-   gives
-      scheme=https
-      domain=github
-      scm=git
-      user=mulle-c
-      repo=mulle-c11
-      branch=''
-      tag=''
+      eval \`${MULLE_USAGE_NAME} parse-url https://github.com/mulle-c/mulle-c11\`
+
+      # yields
+      # scheme=https
+      # domain=github
+      # host=github.com
+      # scm=git
+      # user=mulle-c
+      # repo=mulle-c11
+      # branch=''
+      # tag=''
 
 Options:
    --guess                    : guess domain from URL format (default)
@@ -153,8 +156,20 @@ domain::parse::r_url_get_host()
 
    local host
 
-   host="${url#*://}"
-   RVAL="${host%%/*}"
+   case "${url}" in
+      *://*)
+         host="${url#*://}"
+         RVAL="${host%%/*}"
+      ;;
+
+      *:*)
+         RVAL="${url%%:*}"
+      ;;
+
+      *)
+         RVAL="" # guess
+      ;;
+   esac
 }
 
 

@@ -1,0 +1,8 @@
+Parses archive and repository URLs like
+`https://github.com/mulle-sde/mulle-sde-developer.git` to determine the project
+name (`mulle-sde-developer` in this case). Also can compose URLs based on the
+hoster domain and the project name.
+
+mulle-domain has a plugin API, to manage multiple hosting domains such as
+**github** or **gitlab**.
+

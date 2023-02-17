@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_SH="included"
+MULLE_DOMAIN_PLUGIN_SH='included'
 
 
 domain::plugin::usage()
@@ -92,7 +92,6 @@ domain::plugin::load_if_present()
 
    return 0
 }
-
 
 
 domain::plugin::load()

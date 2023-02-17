@@ -1,20 +1,3 @@
-# 🏰 URL management and tag resolution for repositories
-
-... for Android, BSDs, Linux, macOS, SunOS, Windows (MinGW, WSL)
-
-Parses archive and repository URLs like
-`https://github.com/mulle-sde/mulle-sde-developer.git` to determine the project
-name (`mulle-sde-developer` in this case). Also can compose URLs based on the
-hoster domain and the project name.
-
-
-| Release Version                                       | Release Notes
-|-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg?branch=release) | [RELEASENOTES](RELEASENOTES.md) |
-
-
-
-
 ## Commands
 
 ### commit-for-tag
@@ -120,26 +103,3 @@ mulle-domain typeguess https://github.com/mulle-c/mulle-c11.git
 Usually the result will be `git` or `tar`. But it can also be `zip` or `svn`.
 
 
-
-
-
-
-
-## Install
-
-See [mulle-sde-developer](//github.com/mulle-sde/mulle-sde-developer) how to
-install mulle-sde, which will also install mulle-domain.
-
-The command to install only the latest mulle-domain into
-`/usr/local` (with **sudo**) is:
-
-``` bash
-curl -L 'https://github.com/mulle-sde/mulle-domain/archive/latest.tar.gz' \
- | tar xfz - && cd 'mulle-domain-latest' && sudo ./bin/installer /usr/local
-```
-
-
-
-## Author
-
-[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK

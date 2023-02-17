@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_GITLAB_SH="included"
+MULLE_DOMAIN_PLUGIN_GITLAB_SH='included'
 
 
 domain::plugin::gitlab::curl_json()
@@ -132,21 +132,28 @@ domain::plugin::gitlab::__parse_url()
 
    local s
 
-   _scheme=""
-   case "${url}" in
-      *://*)
-         _scheme="${url%://*}"
+   __url_parse "${url}"
+   if [ -z "${_host}" ]
+   then
+      return 2
+   fi
+
+   s="${_path##/}"
+   case "${s}" in
+      */*)
+      ;;
+
+      *)
+         return 2
       ;;
    esac
-
-   s="${url#*//}"       # remove scheme if any
-   s="${s#*/}"          # remove domain (must be known already)
 
    _user="${s%%/*}"     # get user
    s="${s#${_user}/}"   # dial up to repo
 
    _repo="${s%%/*}"
    s="${s#${_repo}/}"   # checkout rest
+
 
    case "${_repo}" in
       *.git)
@@ -203,6 +210,14 @@ domain::plugin::gitlab::r_compose_url()
    [ -z "${user}" ] && fail "User is required for gitlab URL"
    [ -z "${repo}" ] && fail "Repo is required for gitlab URL"
 
+   case "${host}" in
+      *\.*)
+      ;;
+
+      *)
+         host="${host}.com"
+      ;;
+   esac
 
    repo="${repo%.git}"
    # could use API to get the URL, but laziness...
@@ -217,6 +232,10 @@ domain::plugin::gitlab::r_compose_url()
 
       zip)
          RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${tag:-latest}/${repo}-${tag:-latest}.zip"
+      ;;
+
+      none)
+         r_concat "https://${host}/${user}/${repo}" "${tag}" "/tree/"
       ;;
 
       *)

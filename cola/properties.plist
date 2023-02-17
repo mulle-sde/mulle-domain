@@ -1,0 +1,12 @@
+{
+   project =
+   {
+      description="🏰 URL management and tag resolution for repositories";
+      domain="github";
+      name="mulle-domain";
+      username="mulle-sde";
+      reponame="mulle-domain";
+      homepage="https://github.com/mulle-sde/mulle-domain";
+      license="BSD-3-Clause"
+   };
+}

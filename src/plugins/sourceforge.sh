@@ -31,6 +31,9 @@
 MULLE_DOMAIN_PLUGIN_SOURCEFORGE_SH="included"
 
 
+#
+# MEMO: quickly hacked!. Only works for tar.gz at the moment.
+#       very pad at parsing and composing too. Only use when desperate
 
 ####
 #### PLUGIN API
@@ -44,7 +47,6 @@ MULLE_DOMAIN_PLUGIN_SOURCEFORGE_SH="included"
 # _scm
 # 
 # https://netcologne.dl.sourceforge.net/project/freeglut/freeglut/3.2.1/freeglut-3.2.1.tar.gz
-# MEMO: quickly hacked!. Only works for tar.gz at the moment.
 #
 domain::plugin::sourceforge::__parse_url()
 {
@@ -130,7 +132,7 @@ domain::plugin::sourceforge::r_compose_url()
    local tag="$3"
    local scm="$4"
    local scheme="${5:-https}"
-   local host="${6:-sourceforge.com}"
+   local host="${6:-sourceforge.net}"
 
    [ -z "${user}" ] && fail "User is required for sourceforge URL"
    [ -z "${repo}" ] && fail "Repo is required for sourceforge URL"

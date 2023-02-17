@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_GENERIC_SH="included"
+MULLE_DOMAIN_PLUGIN_GENERIC_SH='included'
 
 
 
@@ -220,6 +220,7 @@ domain::plugin::generic::__parse_url()
    local _fragment
 
    __url_parse "${url}"
+
    if [ -z "${_host}" ]
    then
       return 2
@@ -289,11 +290,20 @@ domain::plugin::generic::r_compose_url()
    local tag="$3"
    local scm="$4"
    local scheme="${5:-https}"
-   local host="${6}"
+   local host="$6"
 
  #  [ -z "${user}" ] && fail "User is required for generic URL"
    [ -z "${repo}" ] && fail "Repo is required for generic URL"
    [ -z "${host}" ] && fail "Host is required for generic URL"
+
+   case "${host}" in
+      *\.*)
+      ;;
+
+      *)
+         host="${host}.com"
+      ;;
+   esac
 
    local opt_user
 
@@ -315,6 +325,10 @@ domain::plugin::generic::r_compose_url()
 
       zip)
          RVAL="${scheme}://${host}/${opt_user}${repo}/archive/${tag:-latest}.zip"
+      ;;
+
+      none)
+         r_concat "https://${host}/${opt_user}/${repo}" "${tag}" "/tree/"
       ;;
 
       *)

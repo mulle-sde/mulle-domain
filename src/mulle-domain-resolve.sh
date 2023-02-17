@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_RESOLVE_SH="included"
+MULLE_DOMAIN_RESOLVE_SH='included'
 
 
 
@@ -98,7 +98,7 @@ domain::resolve::r_semver_qualifier_to_tag()
 
    shell_is_extglob_enabled || _internal_fail "extglob must be enabled"
    # YES=quiet
-   semver::search::search "${qualifier}" "YES" "YES" "${versions}"
+   semver::search::search "${qualifier}" 'YES' 'YES' "${versions}"
 }
 
 

@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_SR_SH="included"
+MULLE_DOMAIN_PLUGIN_SR_SH='included'
 
 
 # totally experimental
@@ -260,6 +260,15 @@ domain::plugin::sr::r_compose_url()
 
    [ -z "${user}" ] && fail "User is required for sr URL"
    [ -z "${repo}" ] && fail "Repo is required for sr URL"
+
+   case "${host}" in
+      *\.*)
+      ;;
+
+      *)
+         host="git.sr.ht"
+      ;;
+   esac
 
    repo="${repo%.git}"
    # could use API to get the URL, but laziness...

@@ -30,7 +30,7 @@
 #   POSSIBILITY OF SUCH DAMAGE.
 #
 
-MULLE_DOMAIN_GUESS_SH="included"
+MULLE_DOMAIN_GUESS_SH='included'
 
 
 

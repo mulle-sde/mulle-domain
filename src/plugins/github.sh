@@ -28,7 +28,7 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_GITHUB_SH="included"
+MULLE_DOMAIN_PLUGIN_GITHUB_SH='included'
 
 
 domain::plugin::github::curl_json()
@@ -310,6 +310,15 @@ domain::plugin::github::r_compose_url()
    [ -z "${user}" ] && fail "User is required for github URL"
    [ -z "${repo}" ] && fail "Repo is required for github URL"
 
+   case "${host}" in
+      *\.*)
+      ;;
+
+      *)
+         host="${host}.com"
+      ;;
+   esac
+
    repo="${repo%.git}"
    # could use API to get the URL, but laziness...
    case "${scm}" in
@@ -323,6 +332,10 @@ domain::plugin::github::r_compose_url()
 
       zip)
          RVAL="${scheme}://${host}/${user}/${repo}/archive/${tag:-latest}.zip"
+      ;;
+
+      none)
+         r_concat "https://${host}/${user}/${repo}" "${tag}" "/tree/"
       ;;
 
       *)
