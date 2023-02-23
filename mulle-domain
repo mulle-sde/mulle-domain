@@ -242,6 +242,14 @@ domain::main()
          domain::usage
       ;;
 
+      'homepage-url')
+         # shellcheck source=src/mulle-domain-compose.sh
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh"
+         . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-compose.sh"
+
+         domain::parse::main "$@" | domain::compose::main - --scm homepage
+      ;;
+
       'compose'|'compose-url')
          # shellcheck source=src/mulle-domain-compose.sh
          . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-compose.sh"
@@ -347,7 +355,8 @@ domain::main()
       ;;
 
       *)
-         domain::usage "unknown command ${cmd}"
+         log_error "Unknown command \"${cmd}\""
+         domain::usage
       ;;
    esac
 }

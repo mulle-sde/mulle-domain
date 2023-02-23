@@ -285,6 +285,14 @@ domain::plugin::sr::r_compose_url()
          RVAL="${scheme}://${host}/~${user}/${repo}/archive/${tag:-latest}.zip"
       ;;
 
+      homepage)
+         RVAL="https://${host}/~${user}/${repo}"
+      ;;
+
+      none) # TODO: fix
+         r_concat "${scheme}://${host}/~${user}/${repo}" "${tag}" "/tag/"
+      ;;
+
       *)
          fail "Unsupported scm ${scm} for sr"
       ;;

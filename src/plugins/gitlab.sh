@@ -234,6 +234,10 @@ domain::plugin::gitlab::r_compose_url()
          RVAL="${scheme}://${host}/${user}/${repo}/-/archive/${tag:-latest}/${repo}-${tag:-latest}.zip"
       ;;
 
+      homepage)
+         r_concat "https://${host}/${user}/${repo}"
+      ;;
+
       none)
          r_concat "https://${host}/${user}/${repo}" "${tag}" "/tree/"
       ;;

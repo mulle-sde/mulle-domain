@@ -327,6 +327,10 @@ domain::plugin::generic::r_compose_url()
          RVAL="${scheme}://${host}/${opt_user}${repo}/archive/${tag:-latest}.zip"
       ;;
 
+      homepage)
+         r_concat "https://${host}/${opt_user}/${repo}"
+      ;;
+
       none)
          r_concat "https://${host}/${opt_user}/${repo}" "${tag}" "/tree/"
       ;;

@@ -334,6 +334,10 @@ domain::plugin::github::r_compose_url()
          RVAL="${scheme}://${host}/${user}/${repo}/archive/${tag:-latest}.zip"
       ;;
 
+      homepage)
+         RVAL="https://${host}/${user}/${repo}"
+      ;;
+
       none)
          r_concat "https://${host}/${user}/${repo}" "${tag}" "/tree/"
       ;;

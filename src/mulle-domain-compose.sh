@@ -262,12 +262,12 @@ domain::compose::main()
    fi
 
    if ! domain::plugin::r_compose_url "${domain}" \
-                             "${OPTION_USER}" \
-                             "${OPTION_REPO}" \
-                             "${OPTION_TAG}" \
-                             "${OPTION_SCM}" \
-                             "${OPTION_SCHEME}" \
-                             "${OPTION_HOST}"
+                                      "${OPTION_USER}" \
+                                      "${OPTION_REPO}" \
+                                      "${OPTION_TAG}" \
+                                      "${OPTION_SCM}" \
+                                      "${OPTION_SCHEME}" \
+                                      "${OPTION_HOST}"
    then
       return 2
    fi

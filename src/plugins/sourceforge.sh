@@ -143,6 +143,11 @@ domain::plugin::sourceforge::r_compose_url()
       tar)
          RVAL="${scheme}://${host}/project/${user}/${repo}/${tag}/${repo}-${tag}.tar.gz"
       ;;
+
+      homepage)
+         RVAL="https://${host}/project/${repo}"
+      ;;
+
       *)
          fail "Unsupported scm ${scm} for sourceforge"
       ;;
