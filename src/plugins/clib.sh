@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 #
-#   Copyright (c) 2021 Nat! - Mulle kybernetiK
+#   Copyright (c) 2020 Nat! - Mulle kybernetiK
 #   All rights reserved.
 #
 #   Redistribution and use in source and binary forms, with or without
@@ -28,36 +28,48 @@
 #   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 #   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #
-MULLE_DOMAIN_PLUGIN_SOURCEFORGE_SH="included"
+MULLE_DOMAIN_PLUGIN_CLIB_SH='included'
 
 
-#
-# MEMO: quickly hacked!. Only works for tar.gz at the moment.
-#       very pad at parsing and composing too. Only use when desperate
 
 ####
 #### PLUGIN API
 ####
 
-#
-# _scheme
-# _user
-# _repo
-# _tag
-# _scm
-# 
-# https://netcologne.dl.sourceforge.net/project/freeglut/freeglut/3.2.1/freeglut-3.2.1.tar.gz
-#
-domain::plugin::sourceforge::__parse_url()
+domain::plugin::clib::string_could_be_a_version()
 {
-   log_entry "domain::plugin::sourceforge::__parse_url" "$@"
+   return 1
+}
+
+
+
+domain::plugin::clib::__parse_repository_url()
+{
+   log_entry "domain::plugin::clib::__parse_repository_url" "$@"
+   
+   local s="$1"
+
+   _user=
+   case "${s}" in
+      */*)
+         _user="${s%%/*}"     # get user
+         s="${s#${_user}/}"   # dial up to repo
+      ;;
+   esac
+
+   _repo="${s%%/*}"
+}
+
+
+domain::plugin::clib::__parse_url()
+{
+   log_entry "domain::plugin::clib::__parse_url" "$@"
 
    local url="$1"
 
    [ -z "${url}" ] && _internal_fail "URL is empty"
 
    local s
-   local before
 
 #   local _scheme
    local _userinfo
@@ -68,53 +80,14 @@ domain::plugin::sourceforge::__parse_url()
    local _fragment
 
    __url_parse "${url}"
-   if [ -z "${_host}" ]
-   then
-      return 2
-   fi
+
+   _domain="clib"
+   _host=""
 
    s="${_path##/}"
-   case "${s}" in
-      */*)
-      ;;
 
-      *)
-         return 2
-      ;;
-   esac
-
-   local project 
-
-   project="${s%%/*}"    # get "project"
-   s="${s#${project}/}"  # dial up to user
-
-   _user="${s%%/*}"     # get user
-   s="${s#${_user}/}"   # dial up to repo
-
-   _repo="${s%%/*}"
-   s="${s#${_repo}/}"   # dial up to repo
-
-   _tag="${s%%/*}"
-   s="${s#${_tag}/}"     # checkout rest
-
-   case "${s}" in
-      *\.gz)
-         s="${s##*/}"        # checkout filename
-         r_url_remove_file_compression_extension "${s}"
-         s="${RVAL}"
-
-         _scm="${s##*.}"
-         case "${_scm}" in
-            'tgz')
-               _scm='tar'
-            ;;
-         esac
-      ;;
-
-      *)
-         return 2
-      ;;
-   esac
+   _scm="clib"
+   domain::plugin::clib::__parse_repository_url "${s}"
 }
 
 
@@ -123,37 +96,38 @@ domain::plugin::sourceforge::__parse_url()
 # compose an URL from user repository name (repo), username (user)
 # possibly a version (tag) and the desired SCM (git or tar usually)
 #
-domain::plugin::sourceforge::r_compose_url()
+domain::plugin::clib::r_compose_url()
 {
-   log_entry "domain::plugin::sourceforge::r_compose_url" "$@"
+   log_entry "domain::plugin::clib::r_compose_url" "$@"
 
-   local user="${1:-whoever}"
+   local user="$1"
    local repo="$2"
    local tag="$3"
    local scm="$4"
    local scheme="${5:-https}"
-   local host="${6:-sourceforge.net}"
+   local host="$6"
 
-   [ -z "${user}" ] && fail "User is required for sourceforge URL ($*)"
-   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required for sourceforge URL ($*)"
+ #  [ -z "${user}" ] && fail "User is required for clib URL"
+   [ -z "${user}" ] && fail "User is required for clib URL ($*)"
+   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required for clib URL ($*)"
 
-   repo="${repo%.git}"
+
    # could use API to get the URL, but laziness...
    case "${scm}" in
-      tar)
-         RVAL="${scheme}://${host}/project/${user}/${repo}/${tag}/${repo}-${tag}.tar.gz"
+      homepage)
+         r_concat "https://github.com/${user}" "${repo}" "/"
       ;;
 
-      homepage)
-         RVAL="https://${host}"
-         if [ ! -z "${repo}" ]
-         then
-            RVAL="${RVAL}/project/${repo}"
-         fi
+      none)
+         r_concat "https://github.com/${user}/${repo}" "${tag}" "/tree/"
+      ;;
+
+      clib)
+         r_concat "clib:${user}/${repo}"
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for sourceforge"
+         fail "Unsupported scm ${scm} for clib"
       ;;
    esac
 }
@@ -161,16 +135,15 @@ domain::plugin::sourceforge::r_compose_url()
 
 #
 # lists tag in one line, then commit in the next
-# hinges on the fact that sourceforge emits "name" first
+# hinges on the fact that clib emits "name" first
 # If it doesn't anymore reverse order with sed -n "{h;n;p;g;p}".
 # If its now random, move to 'jq'
 #
-domain::plugin::sourceforge::tags_with_commits()
+domain::plugin::clib::tags_with_commits()
 {
-   log_entry "domain::plugin::sourceforge::tags_with_commits" "$@"
-
-   local user="$1"
-   local repo="$2"
+   log_entry "clib_tags_with_commits" "$@"
 
    return 1
 }
+
+:

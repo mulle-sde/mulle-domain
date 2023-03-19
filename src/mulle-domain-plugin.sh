@@ -186,7 +186,7 @@ domain::plugin::load_if_needed()
    #
    # if unsupported just emit the URL as is
    #
-   if ! domain::plugin::load_if_present "${domain_identifier}" "domain"
+   if ! domain::plugin::load_if_present "${domain_identifier}"
    then
       log_fluff "Domain \"${domain_identifier}\" is not supported"
       return 127

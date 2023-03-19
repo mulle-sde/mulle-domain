@@ -207,8 +207,8 @@ domain::plugin::gitlab::r_compose_url()
    local scheme="${5:-https}"
    local host="${6:-gitlab.com}"
 
-   [ -z "${user}" ] && fail "User is required for gitlab URL"
-   [ -z "${repo}" ] && fail "Repo is required for gitlab URL"
+   [ -z "${user}" ] && fail "User is required for gitlab URL ($*)"
+   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required for gitlab URL ($*)"
 
    case "${host}" in
       *\.*)
@@ -235,7 +235,7 @@ domain::plugin::gitlab::r_compose_url()
       ;;
 
       homepage)
-         r_concat "https://${host}/${user}/${repo}"
+         r_concat "https://${host}/${user}" "${repo}" "/"
       ;;
 
       none)

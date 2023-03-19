@@ -66,8 +66,8 @@ Usage:
    ${MULLE_USAGE_NAME} typeguess [options]  <url>
 
    Guess the type of the repository provided by URL. If in doubt it returns
-   nothing. Possible return values are "git", "svn", "tar", "zip". This guess
-   is purely syntactical.
+   nothing. Possible return values are "git", "svn", "tar", "zip", "clib". This
+   guess is purely syntactical.
 
       ${MULLE_USAGE_NAME} typeguess https://foo.com/bla.git?version=last
 
@@ -308,6 +308,8 @@ domain::guess::nameguess_main()
                break
             fi
          done
+
+         RVAL="${RVAL%.${_scm:-${OPTION_SCM:-tar}}}"
       ;;
 
       *)
@@ -319,32 +321,12 @@ domain::guess::nameguess_main()
 }
 
 
-
 domain::guess::initalize()
 {
-   if [ -z "${MULLE_DOMAIN_PARSE_SH}" ]
-   then
-      # shellcheck source=mulle-domain-parse.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh" || exit 1
-   fi
-
-   if [ -z "${MULLE_URL_SH}" ]
-   then
-      # shellcheck source=../../../srcM/mulle-bashfunctions/src/mulle-url.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-url.sh" || exit 1
-   fi
-
-   if [ -z "${MULLE_STRING_SH}" ]
-   then
-      # shellcheck source=../../../mulle-bashfunctions/src/mulle-string.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-string.sh"  || exit 1
-   fi
-
-   if [ -z "${MULLE_PATH_SH}" ]
-   then
-      # shellcheck source=../../../mulle-bashfunctions/src/mulle-path.sh
-      . "${MULLE_BASHFUNCTIONS_LIBEXEC_DIR}/mulle-path.sh"  || exit 1
-   fi
+   include "domain::parse"
+   include "url"
+   include "string"
+   include "path"
 }
 
 domain::guess::initalize

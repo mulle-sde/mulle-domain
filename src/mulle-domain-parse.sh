@@ -83,6 +83,16 @@ domain::parse::r_url_guess_domain()
    local host
    local uri
 
+   case "${url}" in
+      *://*)
+      ;;
+
+      *:*)
+         RVAL="${url%%:*}"
+         return
+      ;;
+   esac
+
    uri="${url#*://}"
    host="${uri%%/*}"
    host="${host#*@}"
@@ -162,6 +172,16 @@ domain::parse::r_url_get_host()
          RVAL="${host%%/*}"
       ;;
 
+      # hack
+      github:*)
+         RVAL="github.com"
+      ;;
+
+      # hack
+      clib:*)
+         RVAL=""
+      ;;
+
       *:*)
          RVAL="${url%%:*}"
       ;;
@@ -209,13 +229,30 @@ domain::parse::parse_url_domain()
    domain::parse::r_url_get_host "${url}"
    _host="${RVAL}"
 
-   domain::parse::r_host_get_domain "${_host}"
-   _domain="${RVAL}"
+   #
+   # facilitate clib:* or github:* gitlab:* urls amongst others
+   #
+   if [ -z "${domain}" ]
+   then
+      case "${url}" in
+         *://*)
+            domain::parse::r_host_get_domain "${_host}" "generic"
+            domain="${RVAL}"
+         ;;
+
+         *:*)
+            domain="${url%%:*}"
+         ;;
+      esac
+   fi
+
+   # retry with generic pls
+   if [ -z "${domain}" ]
+   then
+      return 1
+   fi
 
    local rval
-
-   domain="${domain:-${_domain}}"
-   domain="${domain:-generic}"
 
    domain::plugin::parse_url "${domain}" "${url}"
    rval=$?
@@ -226,6 +263,7 @@ domain::parse::parse_url_domain()
    log_setting "scm    = '${_scm}'"
    log_setting "user   = '${_user}'"
    log_setting "repo   = '${_repo}'"
+   log_setting "path   = '${_path}'"
    log_setting "branch = '${_branch}'"
    log_setting "tag    = '${_tag}'"
 
@@ -305,6 +343,8 @@ domain::parse::main()
 
    local url="$1"
 
+   [ -z "${url}" ] && fail "empty URL given"
+
    local _scheme
    local _host
    local _domain
@@ -376,6 +416,8 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
    then
       _branch=''
    fi
+
+   _domain="${domain}"
 
    #
    # we escape everything, because after all it can be evaluated,

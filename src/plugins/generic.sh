@@ -223,6 +223,7 @@ domain::plugin::generic::__parse_url()
 
    if [ -z "${_host}" ]
    then
+      log_debug  "__url_parse could not extract a host from \"${url}\""
       return 2
    fi
 
@@ -293,8 +294,8 @@ domain::plugin::generic::r_compose_url()
    local host="$6"
 
  #  [ -z "${user}" ] && fail "User is required for generic URL"
-   [ -z "${repo}" ] && fail "Repo is required for generic URL"
-   [ -z "${host}" ] && fail "Host is required for generic URL"
+   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required to compose generic URL ($*)"
+   [ -z "${host}" ] && fail "Host is required to compose generic URL ($*)"
 
    case "${host}" in
       *\.*)
@@ -328,7 +329,7 @@ domain::plugin::generic::r_compose_url()
       ;;
 
       homepage)
-         r_concat "https://${host}/${opt_user}/${repo}"
+         r_concat "https://${host}/${opt_user}" "${repo}" "/"
       ;;
 
       none)

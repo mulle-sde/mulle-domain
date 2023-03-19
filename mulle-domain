@@ -33,7 +33,7 @@
 [ "${TRACE:-}" = 'YES' -o "${MULLE_DOMAIN_TRACE:-}" = 'YES' ] && set -x && : "${MULLE_EXCUTABLE}" "$@"
 
 
-MULLE_EXECUTABLE_VERSION="1.2.0"
+MULLE_EXECUTABLE_VERSION="1.3.0"
 
 #
 # Determine location of own libexec directory. Which is `src` in development
@@ -250,7 +250,7 @@ domain::main()
          domain::parse::main "$@" | domain::compose::main - --scm homepage
       ;;
 
-      'compose'|'compose-url')
+      'compose'|'compose-url'|'url-compose')
          # shellcheck source=src/mulle-domain-compose.sh
          . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-compose.sh"
 
@@ -275,14 +275,14 @@ domain::main()
          domain::plugin::main "$@" list
       ;;
 
-      'nameguess'|'guess')
+      'nameguess'|'guess'|'guess-name'|'name-guess')
          # shellcheck source=src/mulle-domain-guess.sh
          . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-guess.sh"
 
          domain::guess::nameguess_main "$@"
       ;;
 
-      'parse'|'parse-url')
+      'parse'|'parse-url'|'url-parse')
          # shellcheck source=src/mulle-domain-parse.sh
          . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh"
 
@@ -338,7 +338,7 @@ domain::main()
          domain::commands::get_tag_aliases_main "$@"
       ;;
 
-      'typeguess')
+      'typeguess'|'type-guess'|'guess-type')
          # shellcheck source=src/mulle-domain-guess.sh
          . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-guess.sh"
 

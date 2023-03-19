@@ -258,8 +258,8 @@ domain::plugin::sr::r_compose_url()
    local scheme="${5:-https}"
    local host="${6:-git.sr.ht}"
 
-   [ -z "${user}" ] && fail "User is required for sr URL"
-   [ -z "${repo}" ] && fail "Repo is required for sr URL"
+   [ -z "${user}" ] && fail "User is required for sr URL ($*)"
+   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required for sr URL ($*)"
 
    case "${host}" in
       *\.*)
@@ -286,7 +286,7 @@ domain::plugin::sr::r_compose_url()
       ;;
 
       homepage)
-         RVAL="https://${host}/~${user}/${repo}"
+         r_concat "https://${host}/~${user}" "${repo}" "/"
       ;;
 
       none) # TODO: fix

@@ -307,8 +307,8 @@ domain::plugin::github::r_compose_url()
    local scheme="${5:-https}"
    local host="${6:-github.com}"
 
-   [ -z "${user}" ] && fail "User is required for github URL"
-   [ -z "${repo}" ] && fail "Repo is required for github URL"
+   [ -z "${repo}" -a "${scm}" != "homepage" ] && fail "Repo is required for generic URL ($*)"
+   [ -z "${user}" ] && fail "User is required for github URL ($*)"
 
    case "${host}" in
       *\.*)
@@ -335,7 +335,7 @@ domain::plugin::github::r_compose_url()
       ;;
 
       homepage)
-         RVAL="https://${host}/${user}/${repo}"
+         r_concat "https://${host}/${user}" "${repo}" "/"
       ;;
 
       none)
