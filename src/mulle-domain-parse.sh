@@ -85,6 +85,14 @@ domain::parse::r_url_guess_domain()
 
    case "${url}" in
       *://*)
+         host="${uri%%/*}"
+         host="${host#*@}"
+      ;;
+
+      *@*:*)
+         uri="${url#*:}"
+         host="${host%%:*}"
+         host="${host#*@}"
       ;;
 
       *:*)
@@ -92,10 +100,6 @@ domain::parse::r_url_guess_domain()
          return
       ;;
    esac
-
-   uri="${url#*://}"
-   host="${uri%%/*}"
-   host="${host#*@}"
 
    case "${host}" in
       *.sr.ht|sr.ht)
