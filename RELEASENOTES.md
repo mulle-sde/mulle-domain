@@ -1,3 +1,16 @@
+## 1.3.0
+
+* added some more convenience aliases for guess commands
+* the 'homepage' scm is now more lenient with respect to incoming data
+* new domain 'clib' for C clib URLs
+* new **homepage-url** command
+* fix host parsing for domains like github:foo/bar and the like
+* fix cross-platform problems
+* the parser will now also output the host and not just the domain
+* don't require tools, that actually might `_not_` be needed
+* fix parsing of domain for git@github.com:
+
+
 ## 1.1.0
 
 * somewhat better detection of the "file" scm
