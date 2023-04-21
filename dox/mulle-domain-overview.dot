@@ -1,5 +1,5 @@
 digraph G {
-    graph [rankdir = TD];
+    graph [rankdir = LR];
 
     node[shape=record];
     edge [ label=" runs", style="dotted" ]
@@ -7,7 +7,7 @@ digraph G {
     {
         label = "Language agnostic";
 
-        "mulle-sde"       -> "mulle-sourcetree"
+        "mulle-sde"        -> "mulle-sourcetree"
         "mulle-sourcetree" -> "mulle-domain"
 
         "mulle-domain"   [ color="dodgerblue"; fontcolor="dodgerblue"; penwidth="2"]

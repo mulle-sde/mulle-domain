@@ -7,10 +7,11 @@ Parses archive and repository URLs like
 name (`mulle-sde-developer` in this case). Also can compose URLs based on the
 hoster domain and the project name.
 
-
+![Overview](dox/mulle-domain-overview.svg)
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
 | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg?branch=release) | [RELEASENOTES](RELEASENOTES.md) |
+
 
 
 
@@ -123,12 +124,18 @@ Usually the result will be `git` or `tar`. But it can also be `zip` or `svn`.
 
 
 
+## You are here
+
+![](dox/mulle-monitor-overview.svg)
+
+
 
 
 ## Install
 
 See [mulle-sde-developer](//github.com/mulle-sde/mulle-sde-developer) how to
-install mulle-sde, which will also install mulle-domain.
+install mulle-sde, which will also install mulle-domain with required
+dependencies.
 
 The command to install only the latest mulle-domain into
 `/usr/local` (with **sudo**) is:
@@ -143,3 +150,5 @@ curl -L 'https://github.com/mulle-sde/mulle-domain/archive/latest.tar.gz' \
 ## Author
 
 [Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK
+
+

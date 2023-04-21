@@ -3,3 +3,4 @@ Parses archive and repository URLs like
 name (`mulle-sde-developer` in this case). Also can compose URLs based on the
 hoster domain and the project name.
 
+![Overview](dox/mulle-domain-overview.svg)
