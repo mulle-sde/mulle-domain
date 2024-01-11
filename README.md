@@ -10,7 +10,7 @@ hoster domain and the project name.
 ![Overview](dox/mulle-domain-overview.svg)
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg?branch=release) | [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg?branch=release)  | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
@@ -119,6 +119,7 @@ Given an URL guess the source code management (scm) employed:
 mulle-domain typeguess https://github.com/mulle-c/mulle-c11.git
 ```
 Usually the result will be `git` or `tar`. But it can also be `zip` or `svn`.
+
 
 
 

@@ -256,6 +256,9 @@ domain::plugin::github::__parse_url()
    _repo="${s%%/*}"
    s="${s#${_repo}/}"   # checkout rest
 
+   _tag="${_repo#*@}"
+   _repo="${_repo%%@*}"
+
    local memo
 
    memo="$s"
@@ -281,9 +284,16 @@ domain::plugin::github::__parse_url()
          esac
       ;;
 
+      *.tar|*.tgz|*.tar.gz|*.tar.xz)
+         _scm='tar'
+      ;;
+
+      *.zip)
+         _scm='zip'
+      ;;
+
       *)
          _scm='git'
-         _tag=
       ;;
    esac
 

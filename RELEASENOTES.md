@@ -1,3 +1,8 @@
+## 1.4.0
+
+* the github: shortcut now understands .zip and .tar file extension and optionally also a @`<tag>` suffix
+
+
 ## 1.3.0
 
 * added some more convenience aliases for guess commands
