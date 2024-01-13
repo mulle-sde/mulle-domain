@@ -256,8 +256,13 @@ domain::plugin::github::__parse_url()
    _repo="${s%%/*}"
    s="${s#${_repo}/}"   # checkout rest
 
-   _tag="${_repo#*@}"
-   _repo="${_repo%%@*}"
+   _tag=
+   case "${_repo}" in
+      *@*)
+         _tag="${_repo#*@}"
+         _repo="${_repo%%@*}"
+      ;;
+   esac
 
    local memo
 
