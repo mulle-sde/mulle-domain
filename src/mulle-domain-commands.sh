@@ -688,7 +688,7 @@ domain::commands::tags_with_commits_main()
 
    if [ "${OPTION_SEMVER}" = 'NO' ]
    then
-      tags_with_commits "${_domain}" "${_user}" "${_repo}" "$@"
+      domain::plugin::tags_with_commits "${_domain}" "${_user}" "${_repo}" "$@"
       return $?
    fi
 
@@ -941,19 +941,12 @@ domain::commands::main()
 
 domain::commands::initialize()
 {
-   if [ -z "$MULLE_DOMAIN_PLUGIN_SH" ]
-   then
-      # shellcheck source=mulle-domain-plugin.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh" || \
-         fail "failed to load ${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh"
-   fi
-   if [ -z "$MULLE_DOMAIN_PARSE_SH" ]
-   then
-      # shellcheck source=mulle-domain-parse.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh" || \
-         fail "failed to load ${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-parse.sh"
-   fi
+   # shellcheck source=mulle-domain-plugin.sh
+   include "mulle-domain::plugin"
+   # shellcheck source=mulle-domain-parse.sh
+   include "mulle-domain::parse"
 }
+
 
 domain::commands::initialize
 

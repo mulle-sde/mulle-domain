@@ -254,6 +254,9 @@ domain::plugin::r_compose_url()
 # _tag
 # _scm
 #
+# return values: 1 or 2 looks invalid
+#                4 looks valid, but can't be loss-lessly parsed
+#
 domain::plugin::parse_url()
 {
    log_entry "domain::plugin::parse_url" "$@"

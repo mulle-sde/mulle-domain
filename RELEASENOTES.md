@@ -1,3 +1,8 @@
+## 1.5.0
+
+* mulle-domain understands zipball and tarball github URLs now
+
+
 ## 1.4.0
 
 * the github: shortcut now understands .zip and .tar file extension and optionally also a @`<tag>` suffix

@@ -199,7 +199,153 @@ Or maybe there are no tags (or no repo even :))."
    return 0
 }
 
+# https://api.github.com/repos/madler/zlib/tarball/refs/tags/v1.3
 
+domain::plugin::github::__parse_ball_url()
+{
+   log_entry "domain::plugin::github::__parse_ball_url" "$@"
+
+   local s
+   local memo
+   local repos
+   local ball
+
+   s="${_path##/}"
+   s="${s#repos/}"      # dial up to user
+
+   _user="${s%%/*}"     # get user
+   s="${s#${_user}/}"   # dial up to repo
+
+   _repo="${s%%/*}"
+   s="${s#${_repo}/}"   # s is now tarball/refs/tags/v1.3
+
+   ball="${s%%/*}"      # get xxxball
+   s="${s#${repos}/}"   # dial up to refs
+
+   _tag="${s##*/}"      # get last part
+   _scm="${ball:0:3}"
+}
+
+
+# https://github.com/mulle-sde/mulle-domain/archive/0.45.0.tar.gz
+
+domain::plugin::github::__parse_archive_url()
+{
+   log_entry "domain::plugin::github::__parse_archive_url" "$@"
+
+   local s
+   local memo
+
+   s="${_path##/}"
+
+   _user="${s%%/*}"     # get user
+   s="${s#${_user}/}"   # dial up to repo
+
+   _repo="${s%%/*}"
+   s="${s#${_repo}/}"   # s is now archive/0.45.0.tar.gz or so
+
+   memo="${s}"
+   s="${s##*/}"         # checkout filename
+
+   r_url_remove_file_compression_extension "${s}"
+   s="${RVAL}"
+
+   _scm="${s##*.}"
+   case "${_scm}" in
+      'tgz')
+         _scm='tar'
+      ;;
+   esac
+
+   _tag="${s%.${_scm}}"
+   case "${memo}" in
+      releases/download/*/*)
+         r_dirname "${memo}"
+         r_basename "${RVAL}"
+         _tag="${RVAL}"
+
+         # check if not some kind of other asset
+         r_basename "${memo}"
+         s="${RVAL#${_repo}-}"
+         if [ "${s}" = "${RVAL}" ]
+         then
+            log_fluff "Can't be losslessly parsed"
+            return 4
+         fi
+      ;;
+
+      releases/download/*)
+         s="${_tag#${_repo}-}"
+
+         # some kind of other asset tripping us up
+         if [ "${s}" = "${_tag}" ]
+         then
+            log_fluff "Can't be losslessly parsed"
+            _tag="${_tag##*-}"
+            return 4
+         fi
+         _tag="$s"
+      ;;
+   esac
+}
+
+
+domain::plugin::github::r_compose_archive_url()
+{
+   log_entry "domain::plugin::github::r_compose_archive_url" "$@"
+
+   local user="$1"
+   local repo="$2"
+   local tag="$3"
+   local scm="$4"
+   local scheme="$5"
+   local host="$6"
+
+   local url
+
+   url="${scheme}://${host}/${user}/${repo}/archive/refs/tags"
+
+   local ext
+   local search
+
+   case "${scm}" in
+      tar)
+         ext=".tar.gz"
+         search="tarball_url"
+      ;;
+
+      zip)
+         ext=".zip"
+         search="zipball_url"
+      ;;
+
+      *)
+         ext=".${scm}"
+      ;;
+   esac
+
+   if [ -z "${tag}" -a ! -z "${search}" ]
+   then
+      if domain::plugin::github::r_tags_json "${user}" "${repo}" 1
+      then
+         local json
+
+         json="${RVAL}"
+
+         local sed_pattern
+
+         sed_cmd='/[^"]*"'${search}'":/{s/.*"\(.*\)".*/\1/p;q}'
+         RVAL="`sed -n -e "${sed_cmd}" <<< "${json}" `"
+         if [ ! -z "${RVAL}" ]
+         then
+            return
+         fi
+         # hmm ok, just default to latest and prolly error
+      fi
+   fi
+
+   RVAL="${url}/${tag:-latest}${ext}"
+}
 
 ####
 #### PLUGIN API
@@ -241,7 +387,19 @@ domain::plugin::github::__parse_url()
    fi
 
    s="${_path##/}"
+
+   # https://api.github.com/repos/madler/zlib/tarball/refs/tags/v1.3
    case "${s}" in
+      repos/*/*/zipball/*|repos/*/*/tarball/*)
+         domain::plugin::github::__parse_ball_url
+         return $?
+      ;;
+
+      */releases/download/*|*/archive/*)
+         domain::plugin::github::__parse_archive_url
+         return $?
+      ;;
+
       */*)
       ;;
 
@@ -254,41 +412,49 @@ domain::plugin::github::__parse_url()
    s="${s#${_user}/}"   # dial up to repo
 
    _repo="${s%%/*}"
-   s="${s#${_repo}/}"   # checkout rest
+   s="${s#${_repo}}"    # checkout rest
 
    _tag=
-   case "${_repo}" in
-      *@*)
-         _tag="${_repo#*@}"
-         _repo="${_repo%%@*}"
-      ;;
-   esac
+
+   if [ -z "${s}" ]
+   then
+      _scheme="https"
+      case "${_repo}" in
+         *@*)
+            _tag="${_repo#*@}"
+            _repo="${_repo%%@*}"
+         ;;
+      esac
+
+      case "${_repo}" in
+         *.tar|*.tgz|*.tar.gz|*.tar.xz)
+            _scm='tar'
+            _repo="${_repo%.*}"
+         ;;
+
+         *.zip)
+            _scm='zip'
+            _repo="${_repo%.*}"
+         ;;
+
+
+         *.git)
+            _scm='git'
+            _repo="${_repo%.*}"
+         ;;
+
+         *)
+            _scm="git"
+         ;;
+      esac
+      return
+   fi
 
    local memo
 
+   s="${s#/}"
    memo="$s"
    case "${s}" in
-      releases/download/*|archive/*)
-
-         s="${s##*/}"        # checkout filename
-         r_url_remove_file_compression_extension "${s}"
-         s="${RVAL}"
-
-         _scm="${s##*.}"
-         case "${_scm}" in
-            'tgz')
-               _scm='tar'
-            ;;
-         esac
-
-         _tag="${s%.${_scm}}"
-         case "${memo}" in
-            releases/download/*)
-               _tag="${_tag#${_repo}-}"
-            ;;
-         esac
-      ;;
-
       *.tar|*.tgz|*.tar.gz|*.tar.xz)
          _scm='tar'
       ;;
@@ -341,12 +507,14 @@ domain::plugin::github::r_compose_url()
          r_concat "${scheme}://${host}/${user}/${repo}.git" "${tag}" '##'
       ;;
 
-      tar)
-         RVAL="${scheme}://${host}/${user}/${repo}/archive/${tag:-latest}.tar.gz"
-      ;;
-
-      zip)
-         RVAL="${scheme}://${host}/${user}/${repo}/archive/${tag:-latest}.zip"
+      tar|zip)
+         # order of args just like our function
+         domain::plugin::github::r_compose_archive_url "${user}" \
+                                                       "${repo}" \
+                                                       "${tag}" \
+                                                       "${scm}" \
+                                                       "${scheme}" \
+                                                       "${host}"
       ;;
 
       homepage)

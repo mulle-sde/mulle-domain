@@ -410,11 +410,24 @@ ${C_INFO}Tip: Maybe use the --fallback-domain option ?"
       return 1
    fi
 
-   if ! domain::parse::parse_url_domain "${url}" "${domain}"
-   then
-      log_warning "Could not parse URL \"${url}\" for domain \"${domain}\""
-      return 1
-   fi
+   local rc
+
+   domain::parse::parse_url_domain "${url}" "${domain}"
+   rc=$?
+
+   case $rc in
+      3)
+         return $rc
+      ;;
+
+      0|4)
+      ;;
+
+      *)
+         log_warning "Could not parse URL \"${url}\" for domain \"${domain}\""
+         return $rc
+      ;;
+   esac
 
    if [ ! -z "${_tag}" ]
    then
@@ -446,6 +459,7 @@ ${OPTION_PREFIX}repo=${_repo}
 ${OPTION_PREFIX}branch=${_branch}
 ${OPTION_PREFIX}tag=${_tag}
 EOF
+   return $rc
 }
 
 
