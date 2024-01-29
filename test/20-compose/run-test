@@ -49,7 +49,7 @@ run_test1()
                                      --tag 1.1.1 \
                                      --repo mulle-c11 --user mulle-c github`"
    expect_output "${result}" "https://foobar.com/mulle-c/mulle-c11/archive/1.1.1.zip"
-   log_verbose "----- #2 PASSED -----"
+   log_verbose "----- #3 PASSED -----"
 }
 
 

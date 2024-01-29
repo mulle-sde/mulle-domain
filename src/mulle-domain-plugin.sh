@@ -219,6 +219,8 @@ domain::plugin::call_function()
 
 #
 # PLUGIN API interface
+# TODO: this might need a host parameter, so we don't query github for
+#       repos that aren't on it accidentally
 #
 domain::plugin::tags_with_commits()
 {

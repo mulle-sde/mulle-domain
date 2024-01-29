@@ -1,3 +1,7 @@
+### 1.5.1
+
+* do proper tag resolving with semver for github archive URLs
+
 ## 1.5.0
 
 * mulle-domain understands zipball and tarball github URLs now

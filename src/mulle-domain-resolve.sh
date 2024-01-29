@@ -276,6 +276,93 @@ domain::resolve::r_qualifier_to_tag()
 }
 
 
+domain::resolve::r_resolve_url()
+{
+   log_entry "domain::resolve::r_resolve_url" "$@"
+
+   local url="$1"
+   local qualifier="$2"
+   local domain="$3"
+   local scm="$4"
+   local latest="$5"
+   local resolve_single_tag="$6"
+
+   local tag
+   local versions
+
+   RVAL=
+   if [ "${latest}" = 'YES' ]
+   then
+      # avoid doing this twice, so do it ahead of _domain_find_exact_match_tag
+      # and _r_domain_resolve_qualifier_to_tag
+      domain::commands::r_lazy_url_tags "${url}" "${domain}"
+      [ $? -eq 1 ] && return 1
+      if [ -z "${RVAL}" ]
+      then
+         return 2
+      fi
+      versions="${RVAL}"
+
+      domain::commands::find_exact_match_tag "${url}" \
+                                             "${domain}" \
+                                             "${qualifier}" \
+                                             "${versions}"
+      rval=$?
+
+      case ${rval} in
+         0)
+            tag="${qualifier}"
+         ;;
+
+         2)
+            domain::resolve::r_qualifier_to_tag "${url}" \
+                                                "${domain}" \
+                                                "*" \
+                                                "${resolve_single_tag}" \
+                                                "${versions}"
+            rval=$?
+
+            [ $rval -ne 0 ] && return $rval
+            tag="${RVAL}"
+         ;;
+
+         *)
+            return $rval
+         ;;
+      esac
+   else
+      domain::resolve::r_qualifier_to_tag "${url}" \
+                                          "${domain}" \
+                                          "${qualifier}" \
+                                          "${resolve_single_tag}"
+      rval=$?
+      case "${rval}" in
+         0)
+            tag="${RVAL}"
+         ;;
+
+         3)
+            tag="${qualifier}"
+         ;;
+
+         *)
+            fail "Resolve failed ($rval)"
+            return $rval
+         ;;
+      esac
+   fi
+
+   [ -z "${tag}" ] && _internal_fail "empty tag returned"
+
+   if ! domain::compose::r_compose_url "${url}" "" "" "${tag}" "${scm}"
+   then
+      return 1
+   fi
+
+   return 0
+}
+
+
 #
 # 0 resolved
 # 1 means don't have plugin to resolve
@@ -290,13 +377,8 @@ domain::resolve::main()
    local OPTION_EXACT='NO'
    local OPTION_DOMAIN
 
-   if [ -z "$MULLE_DOMAIN_PLUGIN_SH" ]
-   then
-      # shellcheck source=mulle-domain-plugin.sh
-      . "${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh" || \
-         fail "failed to load ${MULLE_DOMAIN_LIBEXEC_DIR}/mulle-domain-plugin.sh"
-   fi
-
+   # shellcheck source=mulle-domain-plugin.sh
+   include "domain::plugin"
 
    while [ $# -ne 0 ]
    do
@@ -344,79 +426,17 @@ domain::resolve::main()
       shift
    done
 
-   [ $# -lt 2 ] && log_error  && domain::resolve::usage "missing argument"
+   [ $# -lt 2 ] && domain::resolve::usage "missing argument"
    [ $# -gt 2 ] && shift 2 && domain::resolve::usage "superflous arguments \"$*\""
 
-   local url="$1"
-   local qualifier="$2"
-
-   local tag
-   local versions
-
-   RVAL=
-   if [ "${OPTION_LATEST}" = 'YES' ]
+   if ! domain::resolve::r_resolve_url "$1" \
+                                       "$2" \
+                                       "${OPTION_DOMAIN}" \
+                                       "${OPTION_SCM}" \
+                                       "${OPTION_LATEST}" \
+                                       "${OPTION_RESOLVE_SINGLE_TAG}"
    then
-      # avoid doing this twice, so do it ahead of _domain_find_exact_match_tag
-      # and _r_domain_resolve_qualifier_to_tag
-      domain::commands::r_lazy_url_tags "${url}" "${OPTION_DOMAIN}"
-      [ $? -eq 1 ] && return 1
-      if [ -z "${RVAL}" ]
-      then
-         return 2
-      fi
-      versions="${RVAL}"
-
-      domain::commands::find_exact_match_tag "${url}" "${OPTION_DOMAIN}" "${qualifier}" "${versions}"
-      rval=$?
-
-      case ${rval} in
-         0)
-            tag="${qualifier}"
-         ;;
-
-         2)
-            domain::resolve::r_qualifier_to_tag "${url}" \
-                                              "${OPTION_DOMAIN}" \
-                                              "*" \
-                                              "${OPTION_RESOLVE_SINGLE_TAG}" \
-                                              "${versions}"
-            rval=$?
-
-            [ $rval -ne 0 ] && return $rval
-            tag="${RVAL}"
-         ;;
-
-         *)
-            return $rval
-         ;;
-      esac
-   else
-      domain::resolve::r_qualifier_to_tag "${url}" \
-                                        "${OPTION_DOMAIN}" \
-                                        "${qualifier}" \
-                                        "${OPTION_RESOLVE_SINGLE_TAG}"
-      rval=$?
-      case "${rval}" in
-         0)
-            tag="${RVAL}"
-         ;;
-
-         3)
-            tag="${qualifier}"
-         ;;
-
-         *)
-            fail "Resolve failed ($rval)"
-            return $rval
-         ;;
-      esac
-   fi
-
-   [ -z "${tag}" ] && _internal_fail "empty tag returned"
-
-   if ! domain::compose::r_compose_url "${url}" "" "" "${tag}" "${OPTION_SCM}"
-   then
-      return 1
+      return $?
    fi
 
    printf "%s\n" "${RVAL}"

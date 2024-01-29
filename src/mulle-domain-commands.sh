@@ -415,16 +415,13 @@ domain::commands::find_exact_match_tag()
 
    local version
 
-   IFS=$'\n'; shell_disable_glob
-   for version in ${versions}
-   do
+   .foreachline version in ${versions}
+   .do
       if [ "${version}" = "${tag}" ]
       then
-         IFS="${DEFAULT_IFS}";  shell_enable_glob
          return 0
       fi
-   done
-   IFS="${DEFAULT_IFS}";  shell_enable_glob
+   .done
    return 2
 }
 

@@ -303,7 +303,7 @@ domain::plugin::github::r_compose_archive_url()
 
    local url
 
-   url="${scheme}://${host}/${user}/${repo}/archive/refs/tags"
+   url="${scheme}://${host}/${user}/${repo}/archive"
 
    local ext
    local search
@@ -324,24 +324,24 @@ domain::plugin::github::r_compose_archive_url()
       ;;
    esac
 
+   # only for "true" github can we do a tag search
    if [ -z "${tag}" -a ! -z "${search}" ]
    then
-      if domain::plugin::github::r_tags_json "${user}" "${repo}" 1
-      then
-         local json
+      case "${host}" in
+         *github*)
+            include "domain::resolve"
 
-         json="${RVAL}"
-
-         local sed_pattern
-
-         sed_cmd='/[^"]*"'${search}'":/{s/.*"\(.*\)".*/\1/p;q}'
-         RVAL="`sed -n -e "${sed_cmd}" <<< "${json}" `"
-         if [ ! -z "${RVAL}" ]
-         then
-            return
-         fi
-         # hmm ok, just default to latest and prolly error
-      fi
+            if domain::resolve::r_resolve_url "${scheme}://${host}/${user}/${repo}" \
+                                              ">= 0.0.0" \
+                                              "github" \
+                                              "${scm}" \
+                                              "YES" \
+                                              "YES"
+            then
+               return
+             fi
+         ;;
+      esac
    fi
 
    RVAL="${url}/${tag:-latest}${ext}"
