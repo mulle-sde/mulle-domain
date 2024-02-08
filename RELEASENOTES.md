@@ -1,3 +1,7 @@
+### 1.5.2
+
+* fix wrong return code on failed resolve
+
 ### 1.5.1
 
 * do proper tag resolving with semver for github archive URLs

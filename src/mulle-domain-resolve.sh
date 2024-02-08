@@ -429,14 +429,18 @@ domain::resolve::main()
    [ $# -lt 2 ] && domain::resolve::usage "missing argument"
    [ $# -gt 2 ] && shift 2 && domain::resolve::usage "superflous arguments \"$*\""
 
-   if ! domain::resolve::r_resolve_url "$1" \
-                                       "$2" \
-                                       "${OPTION_DOMAIN}" \
-                                       "${OPTION_SCM}" \
-                                       "${OPTION_LATEST}" \
-                                       "${OPTION_RESOLVE_SINGLE_TAG}"
+   local rc
+
+   domain::resolve::r_resolve_url "$1" \
+                                  "$2" \
+                                  "${OPTION_DOMAIN}" \
+                                  "${OPTION_SCM}" \
+                                  "${OPTION_LATEST}" \
+                                  "${OPTION_RESOLVE_SINGLE_TAG}"
+   rc=$?
+   if [ $rc -ne 0 ]
    then
-      return $?
+      return $rc
    fi
 
    printf "%s\n" "${RVAL}"
