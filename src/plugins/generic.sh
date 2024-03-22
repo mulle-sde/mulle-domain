@@ -251,8 +251,12 @@ domain::plugin::generic::__parse_url()
          fi
       ;;
 
-      # html/css ? hmm... that's probably a bug
-      *.dat|*.txt|*.md|*.css|*.html|*.c|*.m|*.aam|*.cpp|*.png|*.jpg|*.tiff|*.obj|*.aiff|*.aam)
+      *.git|*.svn)
+         # fall thru
+      ;;
+
+      # if it has a non numeric extension start, assume its a file
+      *.[A-Za-z]*|*.7[zZ])
          _scm="file"
          domain::plugin::generic::__parse_file_url "${s}"
          return $?
