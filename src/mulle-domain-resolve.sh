@@ -427,7 +427,7 @@ domain::resolve::main()
    done
 
    [ $# -lt 2 ] && domain::resolve::usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain::resolve::usage "superflous arguments \"$*\""
+   [ $# -gt 2 ] && shift 2 && domain::resolve::usage "superfluous arguments \"$*\""
 
    local rc
 

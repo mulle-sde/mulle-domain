@@ -343,7 +343,7 @@ domain::parse::main()
    done
 
    [ $# -lt 1 ] && domain::parse::usage "missing arguments"
-   [ $# -gt 1 ] && shift && domain::parse::usage "superflous arguments $*"
+   [ $# -gt 1 ] && shift && domain::parse::usage "superfluous arguments $*"
 
    local url="$1"
 

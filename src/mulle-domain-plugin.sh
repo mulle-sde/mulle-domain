@@ -295,14 +295,14 @@ domain::plugin::main()
    done
 
    [ $# -lt 1 ] && domain::plugin::usage "missing argument"
-   [ $# -gt 1 ] && shift && domain::plugin::usage "superflous arguments $*"
+   [ $# -gt 1 ] && shift && domain::plugin::usage "superfluous arguments $*"
 
    local cmd="$1"
    shift
 
    case "${cmd}" in
       list)
-         [ $# -ne 0 ] && domain::plugin::usage "superflous parameters"
+         [ $# -ne 0 ] && domain::plugin::usage "superfluous parameters"
 
          log_info "Plugins"
          domain::plugin::list

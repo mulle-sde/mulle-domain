@@ -673,7 +673,7 @@ domain::commands::tags_with_commits_main()
    done
 
    [ $# -eq 0 ] && domain::commands::tags_with_commits_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain::commands::tags_with_commits_usage "superflous arguments \"$*\""
+   [ $# -gt 1 ] && shift && domain::commands::tags_with_commits_usage "superfluous arguments \"$*\""
 
    local url_domain="$1"
 
@@ -733,7 +733,7 @@ domain::commands::commit_for_tag_main()
    done
 
    [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superfluous arguments \"$*\""
 
    local url_domain="$1"
    local tag="$2"
@@ -787,7 +787,7 @@ domain::commands::tags_for_commit_main()
    done
 
    [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superfluous arguments \"$*\""
 
    local url_domain="$1"
    local commit="$2"
@@ -841,7 +841,7 @@ domain::commands::get_tag_aliases_main()
    done
 
    [ $# -lt 2 ] && domain::commands::get_tag_aliases_usage "missing argument"
-   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superflous arguments \"$*\""
+   [ $# -gt 2 ] && shift 2 && domain::commands::get_tag_aliases_usage "superfluous arguments \"$*\""
 
    local url_domain="$1"
    local tag="$2"
@@ -895,7 +895,7 @@ domain::commands::main()
    done
 
    [ $# -eq 0 ] && domain::commands::tags_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain::commands::tags_usage "superflous arguments \"$*\""
+   [ $# -gt 1 ] && shift && domain::commands::tags_usage "superfluous arguments \"$*\""
 
    local url
 

@@ -191,7 +191,7 @@ domain::guess::typeguess_main()
    local url
 
    [ $# -eq 0 ] && domain::guess::typeguess_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain::guess::typeguess_usage "superflous arguments \"$*\""
+   [ $# -gt 1 ] && shift && domain::guess::typeguess_usage "superfluous arguments \"$*\""
 
    url="$1"
    [ -z "${url}" ] && fail "empty url"
@@ -260,7 +260,7 @@ domain::guess::nameguess_main()
    done
 
    [ $# -eq 0 ] && domain::guess::nameguess_usage "missing argument"
-   [ $# -gt 1 ] && shift && domain::guess::nameguess_usage "superflous arguments \"$*\""
+   [ $# -gt 1 ] && shift && domain::guess::nameguess_usage "superfluous arguments \"$*\""
 
    local url="$1"             # URL of the clone
 
