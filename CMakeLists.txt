@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project( mulle-domain NONE)
+project( mulle-domain VERSION 1.5.3 LANGUAGES NONE)
 
 #
 # Primarily used for packaging on Linux
@@ -16,7 +16,7 @@ project( mulle-domain NONE)
 #
 
 execute_process( COMMAND ./mulle-domain version
-                 WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                  OUTPUT_VARIABLE MULLE_DOMAIN_VERSION
                  OUTPUT_STRIP_TRAILING_WHITESPACE)
 message( STATUS "MULLE_DOMAIN_VERSION is ${MULLE_DOMAIN_VERSION} according to mulle-domain")

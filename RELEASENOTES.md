@@ -1,3 +1,7 @@
+### 1.5.3
+
+Various small improvements
+
 ### 1.5.2
 
 * fix wrong return code on failed resolve
