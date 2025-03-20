@@ -484,14 +484,14 @@ domain::commands::r_filter_semver_tags_and_commits()
    local tag
    local commit
 
-   IFS=$'\n'
+
    while :
    do
-      if ! read tag
+      if ! IFS=$'\n' read tag
       then
          break
       fi
-      if ! read commit
+      if ! IFS=$'\n' read commit
       then
          break
       fi
@@ -512,7 +512,6 @@ domain::commands::r_filter_semver_tags_and_commits()
       r_add_line "${RVAL}" "${commit}"
       result="${RVAL}"
    done <<< "${text}"
-   IFS="${DEFAULT_IFS}"
 
    [ "${memo}" -ne 0 ] && shell_disable_extglob
 

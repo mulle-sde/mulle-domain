@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project( mulle-domain VERSION 1.5.3 LANGUAGES NONE)
+project( mulle-domain VERSION 1.5.4 LANGUAGES NONE)
 
 #
 # Primarily used for packaging on Linux
@@ -68,4 +68,3 @@ DESTINATION "libexec/mulle-domain/plugins")
 # must be after CPACK_PACKAGE_VERSION
 include( CMakePackage.cmake)
 include( CPack)
-

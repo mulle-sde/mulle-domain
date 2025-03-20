@@ -121,7 +121,7 @@ domain::plugin::list()
    [ -z "${DEFAULT_IFS}" ] && _internal_fail "DEFAULT_IFS not set"
    [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && _internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
 
-
+   IFS=$'\n'
    .foreachline pluginpath in `dir_list_files "${MULLE_DOMAIN_LIBEXEC_DIR}/plugins" "*.sh"`
    .do
       basename -- "${pluginpath}" .sh
