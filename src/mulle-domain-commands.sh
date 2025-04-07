@@ -625,15 +625,15 @@ domain::commands::common_url_domain_parse()
 
    if [ ! -z "${OPTION_TOKEN}" ]
    then
-      MULLE_DOMAIN_${domain_identifier_upcase}_TOKEN="${OPTION_TOKEN}"
+      eval "MULLE_DOMAIN_${domain_identifier_upcase}_TOKEN"="${OPTION_TOKEN}"
    fi
    if [ ! -z "${OPTION_PER_PAGE}" ]
    then
-      MULLE_DOMAIN_${domain_identifier_upcase}_PER_PAGE="${OPTION_PER_PAGE}"
+      eval "MULLE_DOMAIN_${domain_identifier_upcase}_PER_PAGE"="${OPTION_PER_PAGE}"
    fi
    if [ ! -z "${OPTION_MAX_PAGES}" ]
    then
-      MULLE_DOMAIN_${domain_identifier_upcase}_MAX_PAGES="${OPTION_MAX_PAGES}"
+      eval "MULLE_DOMAIN_${domain_identifier_upcase}_MAX_PAGES"="${OPTION_MAX_PAGES}"
    fi
 }
 

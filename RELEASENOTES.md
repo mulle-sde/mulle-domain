@@ -1,3 +1,9 @@
+## 1.6.0
+
+* squelch curl verbosity with -v (use -vv now for progress)
+* new options to --github-token etc to override environment variables (--token should still work though)
+
+
 ### 1.5.4
 
 Various small improvements

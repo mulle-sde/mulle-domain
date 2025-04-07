@@ -47,11 +47,16 @@ domain::plugin::github::curl_json()
    local cmdline
 
    cmdline="'${CURL}'"
-   if [ "${MULLE_FLAG_LOG_VERBOSE}" = 'YES' ]
+   if [ "${MULLE_FLAG_LOG_TERSE:-}" = 'YES' ]
    then
-      cmdline="${cmdline} -fSL"
-   else
       cmdline="${cmdline} -fsSL"
+   else
+      if [ "${MULLE_FLAG_LOG_FLUFF:-}" = 'YES' ]
+      then
+         cmdline="${cmdline} -fL"
+      else
+         cmdline="${cmdline} -fsL"
+      fi
    fi
 
    cmdline="${cmdline} -H 'Accept: application/vnd.github.v3+json'"

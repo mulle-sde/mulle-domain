@@ -44,22 +44,33 @@ Usage:
    need to specify a repository name at least. The known domains are listed
    on the bottom. You can use 'github' as the composition domain, but use
    the --host option tp specify a different, compatible server. You need
-   to specify a domain!
+   to specify a domain! This domain changes the syntax of the emitted URL:
 
    Example:
       ${MULLE_USAGE_NAME} compose --host foobar.com \\
                                   --repo mulle-c11  \\
                                   --user mulle-c \\
+                                  --tag latest \\
                                   github
    gives
-      https://github.com/mulle-c/mulle-allocator/archive/latest.tar.gz
+      https://foobar.com/mulle-c/mulle-c11/archive/latest.tar.gz
+
+   Use the --scm option to generate different URLs:
+
+      homepage : https://foobar.com/mulle-c/mulle-c11
+      none     : https://foobar.com/mulle-c/mulle-c11/tree/latest
+      git      : https://foobar.com/mulle-c/mulle-c11.git
+      zip      : https://foobar.com/mulle-c/mulle-c11/archive/latest.zip
+      tar      : https://foobar.com/mulle-c/mulle-c11/archive/latest.tar.gz
+
+   Note: "none" can be the same as "homepage", if there is no <tag>
 
 Options:
    --domain <name>    : you can specify the required domain also as an option
    --host <name>      : specify a host like git.foobar.com
    --repo <repo>      : specify the reposiory required
    --scheme <scheme>  : specify a scheme (https)
-   --scm <name>       : specify an SCM like tar, zip, git (tar)
+   --scm <name>       : specify the SCM (tar)
    --tag <tag>        : specify a version tag (latest)
    --user <user>      : specify the owner, may be required
    -                  : read output from parse and transform into options

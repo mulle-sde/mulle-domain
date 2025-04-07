@@ -33,7 +33,7 @@
 [ "${TRACE:-}" = 'YES' -o "${MULLE_DOMAIN_TRACE:-}" = 'YES' ] && set -x && : "${MULLE_EXCUTABLE}" "$@"
 
 
-MULLE_EXECUTABLE_VERSION="1.5.4"
+MULLE_EXECUTABLE_VERSION="1.6.0"
 
 #
 # Determine location of own libexec directory. Which is `src` in development
@@ -88,11 +88,14 @@ domain::print_commands()
 domain::print_flags()
 {
    cat <<EOF
-   --domain-token <token> : sets MULLE_DOMAIN_<domain>_TOKEN (see Environment)
-   --per-page <value>     : sets MULLE_DOMAIN_<domain>_PER_PAGE
-   --max-pages <value>    : sets MULLE_DOMAIN_<domain>_MAX_PAGES
-   --user <name>          : username for the given domain
-   --repo <name>          : repository name
+   --<domain>-token <token>     : sets MULLE_DOMAIN_<domain>_TOKEN (see Environment)
+   --<domain->per-page <value>  : sets MULLE_DOMAIN_<domain>_PER_PAGE
+   --<domain->max-pages <value> : sets MULLE_DOMAIN_<domain>_MAX_PAGES
+   --token <token>              : sets the auth token
+   --per-page <value>           : sets per page value for tags commands
+   --max-pages <value>          : sets max pages value for tags command
+   --user <name>                : username for the given domain
+   --repo <name>                : repository name
 EOF
 
    if [ "${verbose}" = 'YES' ]
@@ -180,7 +183,9 @@ domain::main()
    local MULLE_FLAG_LOG_VERBOSE='NO'
    local MULLE_FLAG_LOG_MERGE='NO'
    local MULLE_TRACE_POSTPONE='NO'
-
+   local upcase_domain
+   local varname
+   local envvarname
    #
    # simple option handling
    #
@@ -195,6 +200,29 @@ domain::main()
       case "$1" in
          -h*|--help|help)
             domain::usage "${MULLE_TRACE}"
+         ;;
+
+         # this sorta duplicates --token from mulle-domain-commands
+         --*-token|--*-max-pages|--*-per-page)
+            [ $# -eq 1 ] && fail "Missing argument to \"$1\""
+            upcase_domain="${1#--}"
+            shift
+
+            r_uppercase "${upcase_domain}"
+            upcase_domain="${RVAL}"
+            varname="${upcase_domain}"
+            upcase_domain="${upcase_domain%%-*}"
+            varname="${varname#${upcase_domain}-}"
+
+            r_identifier "${upcase_domain}"
+            upcase_domain="${RVAL}"
+            r_identifier "${varname}"
+            varname="${RVAL}"
+
+            envvarname="MULLE_DOMAIN_${upcase_domain}_${varname}"
+
+            eval export "${envvarname}"="$1"
+            log_debug "${envvarname}"="${!envvarname}"
          ;;
 
          --github|--github-user)
