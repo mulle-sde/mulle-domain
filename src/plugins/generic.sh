@@ -333,11 +333,15 @@ domain::plugin::generic::r_compose_url()
       ;;
 
       homepage)
-         r_concat "https://${host}/${opt_user}" "${repo}" "/"
+         r_concat "https://${host}" "${opt_user}" "/"
+         r_concat "${RVAL}" "${repo}" "/"
       ;;
 
       none)
-         r_concat "https://${host}/${opt_user}/${repo}" "${tag}" "/tree/"
+         r_concat "https://${host}" "${opt_user}" "/"
+         r_concat "${RVAL}" "${repo}" "/"
+         r_concat "${RVAL}" "${tag}" "/"
+         r_concat "${RVAL}" "tree/" "/"
       ;;
 
       *)
