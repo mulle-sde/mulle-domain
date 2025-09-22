@@ -248,11 +248,11 @@ domain::compose::main()
 
    if [ ! -z "${OPTION_DOMAIN}" ]
    then
-      [ $# -ne 0 ] && domain::compose::usage "Superflous arguments $*"
+      [ $# -ne 0 ] && domain::compose::usage "Superfluous arguments $*"
       domain="${OPTION_DOMAIN}"
    else
       [ $# -eq 0 ] && domain::compose::usage "Missing domain argument"
-      [ $# -gt 1 ] && shift && domain::compose::usage "Superflous arguments $*"
+      [ $# -gt 1 ] && shift && domain::compose::usage "Superfluous arguments $*"
 
       domain="$1"
       shift
