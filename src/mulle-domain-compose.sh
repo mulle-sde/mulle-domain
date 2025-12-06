@@ -156,6 +156,7 @@ domain::compose::main()
    local OPTION_TAG
    local OPTION_HOST
    local OPTION_SCM
+   local original_args="$*"
 
    while [ $# -ne 0 ]
    do
@@ -251,7 +252,7 @@ domain::compose::main()
       [ $# -ne 0 ] && domain::compose::usage "Superfluous arguments $*"
       domain="${OPTION_DOMAIN}"
    else
-      [ $# -eq 0 ] && domain::compose::usage "Missing domain argument"
+      [ $# -eq 0 ] && domain::compose::usage "Missing domain argument in \`mulle-domain compose ${original_args}\`"
       [ $# -gt 1 ] && shift && domain::compose::usage "Superfluous arguments $*"
 
       domain="$1"

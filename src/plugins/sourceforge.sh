@@ -153,7 +153,7 @@ domain::plugin::sourceforge::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for sourceforge"
+         fail "Unsupported scm \"${scm}\" for sourceforge"
       ;;
    esac
 }

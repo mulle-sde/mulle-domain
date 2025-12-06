@@ -243,7 +243,7 @@ domain::plugin::gitlab::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for gitlab"
+         fail "Unsupported scm \"${scm}\" for gitlab"
       ;;
    esac
 }

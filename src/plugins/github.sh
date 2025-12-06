@@ -531,7 +531,7 @@ domain::plugin::github::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for github"
+         fail "Unsupported scm \"${scm}\" for github"
       ;;
    esac
 }

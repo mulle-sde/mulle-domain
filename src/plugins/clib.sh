@@ -127,7 +127,7 @@ domain::plugin::clib::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for clib"
+         fail "Unsupported scm \"${scm}\" for clib"
       ;;
    esac
 }

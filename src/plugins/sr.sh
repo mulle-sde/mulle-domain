@@ -294,7 +294,7 @@ domain::plugin::sr::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for sr"
+         fail "Unsupported scm \"${scm}\" for sr"
       ;;
    esac
 }

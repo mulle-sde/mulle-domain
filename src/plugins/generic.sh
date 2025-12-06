@@ -345,7 +345,7 @@ domain::plugin::generic::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for generic"
+         fail "Unsupported scm \"${scm}\" for generic"
       ;;
    esac
 }

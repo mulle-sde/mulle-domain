@@ -127,7 +127,7 @@ domain::plugin::githubusercontent::r_compose_url()
       ;;
 
       *)
-         fail "Unsupported scm ${scm} for githubusercontent"
+         fail "Unsupported scm \"${scm}\" for githubusercontent"
       ;;
    esac
 }
