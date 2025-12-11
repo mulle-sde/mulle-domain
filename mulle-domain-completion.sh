@@ -34,7 +34,7 @@ _mulle_domain_complete()
 
    $split && return
 
-   local cmds="compose-url nameguess parse-url resolve tags tags-with-commits list plugin compose commit-for-tag libexec-dir homepage-url guess typeguess type-guess guess-name name-guess era libexec-path uname version"
+   local cmds="compose compose-url url-compose nameguess guess guess-name name-guess parse parse-url url-parse resolve tags tags-with-commits tag-aliases tags-for-commit commit-for-tag tag-exists list plugin libexec-dir library-path homepage-url typeguess type-guess guess-type uname version help"
 
    local cmd i
    for ((i = 1; i < ${#words[@]}-1; i++)); do
@@ -45,7 +45,41 @@ _mulle_domain_complete()
    done
 
    case $cmd in
-      homepage-url|parse-url|guess|nameguess|typeguess|type-guess|guess-name|name-guess)
+      parse|parse-url|url-parse)
+         local parse_options=(
+            "--guess" "--no-guess" "--domain" "--fallback-domain"
+            "--no-fallback" "--prefix"
+         )
+         if [[ $cur == -* ]]; then
+            COMPREPLY=( $(compgen -W "${parse_options[*]}" -- "$cur") )
+         else
+            COMPREPLY=( $(compgen -W "https://" -- "$cur") )
+         fi
+         ;;
+      nameguess|guess|guess-name|name-guess)
+         local nameguess_options=(
+            "-s" "--scm"
+         )
+         case $prev in
+            -s|--scm)
+               COMPREPLY=( $(compgen -W "git tar zip" -- "$cur") )
+               return
+               ;;
+         esac
+         if [[ $cur == -* ]]; then
+            COMPREPLY=( $(compgen -W "${nameguess_options[*]}" -- "$cur") )
+         else
+            COMPREPLY=( $(compgen -W "https://" -- "$cur") )
+         fi
+         ;;
+      typeguess|type-guess|guess-type)
+         if [[ $cur == -* ]]; then
+            COMPREPLY=()
+         else
+            COMPREPLY=( $(compgen -W "https://" -- "$cur") )
+         fi
+         ;;
+      homepage-url)
          local parse_options=(
             "--guess" "--no-guess" "--domain" "--fallback-domain"
             "--no-fallback" "--prefix"
@@ -69,11 +103,10 @@ _mulle_domain_complete()
          ;;
       tags|tag-exists|tags-with-commits|commit-for-tag|tags-for-commit|tag-aliases)
          local tags_options=(
-            "--user" "--repo" "--token" "--per-page" "--max-pages" "--domain-token"
-            "--all"
+            "--user" "--repo" "--domain" "--per-page" "--max-pages" "--all"
          )
          case $prev in
-            --user|--repo|--token|--domain-token)
+            --user|--repo|--domain)
                COMPREPLY=()
                return
                ;;
@@ -100,9 +133,12 @@ _mulle_domain_complete()
          ;;
       plugin)
          local plugin_commands=("list")
-         if [[ $cword -eq $i ]]; then
+         if [[ $cword -eq $((i+1)) ]]; then
             COMPREPLY=( $(compgen -W "${plugin_commands[*]}" -- "$cur") )
          fi
+         ;;
+      libexec-dir|library-path|uname|version|help|list)
+         COMPREPLY=()
          ;;
       *)
          if [[ $cur == -* ]]; then
