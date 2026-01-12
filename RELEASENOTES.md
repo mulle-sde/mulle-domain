@@ -1,3 +1,24 @@
+### 1.6.1
+
+
+* README badge URL no longer includes unnecessary branch parameter
+
+
+
+
+* Add quotes around scm variable in error messages
+  - Quote scm in all plugin error messages for better readability
+  - Affects clib, generic, github, githubusercontent, gitlab, sourceforge, and sr plugins
+
+* Improve compose error message
+  - Show original arguments in missing domain error message
+  - Helps users understand what went wrong in their command
+
+
+* new somewhat fake domain githubusercontent for embedded files
+
+* need to update `cmake_minimum_required` because cmake has a weird concept of min required
+
 ## 1.6.0
 
 * squelch curl verbosity with -v (use -vv now for progress)

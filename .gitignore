@@ -20,3 +20,5 @@ mulle-markdown-preview-*.html
 build-*/
 .mulle/etc/project/publisher-info.sh
 .mulle/etc/make/build-dir
+dox.unreleased
+.graveyard

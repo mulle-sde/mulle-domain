@@ -10,7 +10,7 @@ hoster domain and the project name.
 ![Overview](dox/mulle-domain-overview.svg)
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg?branch=release)  | [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/mulle-sde/mulle-domain.svg)  | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
