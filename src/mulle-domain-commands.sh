@@ -405,11 +405,11 @@ domain::commands::find_exact_match_tag()
    local tag="$3"
    local versions="$4"
 
-   local rval
+   local rc
 
    domain::commands::r_lazy_url_tags "${url}" "${domain}" "${versions}"
-   rval=$?
-   [ $rval -ne 0 ] && return $rval
+   rc=$?
+   [ $rc -ne 0 ] && return $rc
 
    versions="${RVAL}"
 

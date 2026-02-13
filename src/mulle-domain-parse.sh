@@ -256,10 +256,10 @@ domain::parse::parse_url_domain()
       return 1
    fi
 
-   local rval
+   local rc
 
    domain::plugin::parse_url "${domain}" "${url}"
-   rval=$?
+   rc=$?
 
    log_setting "scheme = '${_scheme}'"
    log_setting "domain = '${_domain}'"
@@ -271,7 +271,7 @@ domain::parse::parse_url_domain()
    log_setting "branch = '${_branch}'"
    log_setting "tag    = '${_tag}'"
 
-   return $rval
+   return $rc
 }
 
 

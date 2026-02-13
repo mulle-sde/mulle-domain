@@ -88,11 +88,11 @@ domain::resolve::r_semver_qualifier_to_tag()
    local qualifier="$3"
    local versions=$4
 
-   local rval
+   local rc
 
    domain::commands::r_lazy_url_tags "${url}" "${domain}" "${versions}"
-   rval=$?
-   [ $rval -ne 0 ] && return $rval
+   rc=$?
+   [ $rc -ne 0 ] && return $rc
 
    versions="${RVAL}"
 
@@ -154,9 +154,9 @@ domain::resolve::r_qualifier_to_tag()
    semver::qualify::r_type_description $qualifier_type
    log_debug "Qualifier type: $RVAL"
 
-   local rval
+   local rc
 
-   rval=0
+   rc=0
    if [ ${ZSH_VERSION+x} ]
    then
       case $qualifier_type in
@@ -167,7 +167,7 @@ domain::resolve::r_qualifier_to_tag()
                                                    "*" \
                                                    "${versions}"
             then
-               rval=2
+               rc=2
             fi
          ;;
 
@@ -181,10 +181,10 @@ domain::resolve::r_qualifier_to_tag()
                                               "${qualifier}" \
                                               "${versions}"
                then
-                  rval=2
+                  rc=2
                fi
             else
-               rval=3
+               rc=3
             fi
          ;;
 
@@ -197,7 +197,7 @@ domain::resolve::r_qualifier_to_tag()
                                                       "${qualifier}" \
                                                       "${versions}"
                then
-                  rval=2
+                  rc=2
                fi
             fi
             RVAL="${qualifier#=}"
@@ -210,7 +210,7 @@ domain::resolve::r_qualifier_to_tag()
                                                     "${qualifier}" \
                                                     "${versions}"
             then
-               rval=2
+               rc=2
             fi
          ;;
       esac
@@ -223,7 +223,7 @@ domain::resolve::r_qualifier_to_tag()
                                                    "*" \
                                                    "${versions}"
             then
-               rval=2
+               rc=2
             fi
          ;;
 
@@ -237,10 +237,10 @@ domain::resolve::r_qualifier_to_tag()
                                               "${qualifier}" \
                                               "${versions}"
                then
-                  rval=2
+                  rc=2
                fi
             else
-               rval=3
+               rc=3
             fi
          ;;
 
@@ -253,7 +253,7 @@ domain::resolve::r_qualifier_to_tag()
                                                       "${qualifier}" \
                                                       "${versions}"
                then
-                  rval=2
+                  rc=2
                fi
             fi
             RVAL="${qualifier#=}"
@@ -266,13 +266,13 @@ domain::resolve::r_qualifier_to_tag()
                                                     "${qualifier}" \
                                                     "${versions}"
             then
-               rval=2
+               rc=2
             fi
          ;;
       esac
    fi
 
-   return $rval
+   return $rc
 }
 
 
@@ -307,9 +307,9 @@ domain::resolve::r_resolve_url()
                                              "${domain}" \
                                              "${qualifier}" \
                                              "${versions}"
-      rval=$?
+      rc=$?
 
-      case ${rval} in
+      case ${rc} in
          0)
             tag="${qualifier}"
          ;;
@@ -320,14 +320,14 @@ domain::resolve::r_resolve_url()
                                                 "*" \
                                                 "${resolve_single_tag}" \
                                                 "${versions}"
-            rval=$?
+            rc=$?
 
-            [ $rval -ne 0 ] && return $rval
+            [ $rc -ne 0 ] && return $rc
             tag="${RVAL}"
          ;;
 
          *)
-            return $rval
+            return $rc
          ;;
       esac
    else
@@ -335,8 +335,8 @@ domain::resolve::r_resolve_url()
                                           "${domain}" \
                                           "${qualifier}" \
                                           "${resolve_single_tag}"
-      rval=$?
-      case "${rval}" in
+      rc=$?
+      case "${rc}" in
          0)
             tag="${RVAL}"
          ;;
@@ -346,8 +346,8 @@ domain::resolve::r_resolve_url()
          ;;
 
          *)
-            fail "Resolve failed ($rval)"
-            return $rval
+            fail "Resolve failed ($rc)"
+            return $rc
          ;;
       esac
    fi
