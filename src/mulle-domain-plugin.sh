@@ -113,10 +113,7 @@ domain::plugin::list()
 {
    log_entry "domain::plugin::list"
 
-   local upcase
-   local plugindefine
    local pluginpath
-   local name
 
    [ -z "${DEFAULT_IFS}" ] && _internal_fail "DEFAULT_IFS not set"
    [ -z "${MULLE_DOMAIN_LIBEXEC_DIR}" ] && _internal_fail "MULLE_DOMAIN_LIBEXEC_DIR not set"
