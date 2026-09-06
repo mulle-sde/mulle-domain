@@ -483,6 +483,12 @@ domain::commands::r_filter_semver_tags_and_commits()
    local result
    local tag
    local commit
+   local _line
+   local _build
+   local _prerelease
+   local _major
+   local _minor
+   local _patch
 
 
    while :
@@ -495,13 +501,6 @@ domain::commands::r_filter_semver_tags_and_commits()
       then
          break
       fi
-
-      local _line
-      local _build
-      local _prerelease
-      local _major
-      local _minor
-      local _patch
 
       if ! semver::parse::parse "${tag}" 'YES'
       then

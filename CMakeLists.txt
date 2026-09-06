@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.13...99.99)
 
-project( mulle-domain VERSION 1.6.1 LANGUAGES NONE)
+project( mulle-domain VERSION 1.6.2 LANGUAGES NONE)
 
 #
 # Primarily used for packaging on Linux

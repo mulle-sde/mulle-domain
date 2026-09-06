@@ -80,7 +80,7 @@ _mulle_domain_complete()
          fi
          ;;
       homepage-url)
-         local parse_options=(
+         parse_options=(
             "--guess" "--no-guess" "--domain" "--fallback-domain"
             "--no-fallback" "--prefix"
          )
@@ -143,7 +143,7 @@ _mulle_domain_complete()
       *)
          if [[ $cur == -* ]]; then
             # Handle dynamic domain-specific options
-            local domains=$("${words[0]}" plugin list 2>/dev/null)
+            domains=$("${words[0]}" plugin list 2>/dev/null)
             COMPREPLY=( $(compgen -f -- "$cur") )
             local domain_options
             for domain in $domains; do
