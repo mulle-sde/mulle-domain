@@ -8,6 +8,6 @@
       reponame="mulle-domain";
       homepage="https://github.com/mulle-sde/mulle-domain";
       license="BSD-3-Clause";
-      version="1.6.2"
+      version="1.6.3"
    };
 }
